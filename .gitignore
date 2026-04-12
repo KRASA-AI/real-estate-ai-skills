@@ -1,0 +1,18 @@
+# User outputs (generated content)
+outputs/
+!outputs/.gitkeep
+!outputs/README.md
+
+# User config (contains business-specific data)
+config.yml
+.env
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Editor files
+.vscode/
+.idea/
+*.swp
+*.swo

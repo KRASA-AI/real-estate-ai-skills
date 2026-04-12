@@ -1,0 +1,60 @@
+# Skill Evaluation Rubric
+# Used by the skill evaluator job to grade and improve skills
+
+dimensions:
+  clarity:
+    weight: 0.20
+    description: "Is the skill prompt clear, unambiguous, and easy to follow?"
+    scoring:
+      10: "Crystal clear. Any user could follow it perfectly on first read."
+      7: "Clear with minor ambiguities that don't affect output quality."
+      4: "Confusing in places. Users would need to re-read or guess intent."
+      1: "Incomprehensible or contradictory instructions."
+
+  specificity:
+    weight: 0.20
+    description: "Does it give enough detail to produce a useful output?"
+    scoring:
+      10: "Extremely specific. Output format, length, tone, and content are fully defined."
+      7: "Mostly specific. A few areas left to interpretation."
+      4: "Vague. Output could vary wildly between runs."
+      1: "So generic it could apply to anything."
+
+  industry_fit:
+    weight: 0.20
+    description: "Does it use correct industry terminology, reflect real workflows, and address genuine pain points?"
+    scoring:
+      10: "Reads like it was written by a 20-year industry veteran."
+      7: "Good industry awareness with minor gaps."
+      4: "Generic with industry terms sprinkled in."
+      1: "Wrong industry entirely or laughably generic."
+
+  output_quality:
+    weight: 0.20
+    description: "When run, does the skill produce genuinely useful output?"
+    scoring:
+      10: "Output is immediately usable in a real business context."
+      7: "Output is good with minor tweaks needed."
+      4: "Output needs significant editing to be useful."
+      1: "Output is worse than starting from scratch."
+
+  personalization:
+    weight: 0.10
+    description: "Does it leverage the user's config (from init) to customize output?"
+    scoring:
+      10: "Deeply personalized — references user's rates, tools, service area, etc."
+      7: "Uses some config values effectively."
+      4: "Has config placeholders but doesn't use them meaningfully."
+      1: "Completely generic, ignores config."
+
+  efficiency:
+    weight: 0.10
+    description: "Does it minimize back-and-forth and get to useful output quickly?"
+    scoring:
+      10: "One-shot skill that nails it. No clarification needed."
+      7: "Minimal follow-up needed (1-2 clarifying questions)."
+      4: "Requires significant back-and-forth to get good output."
+      1: "More work than doing it manually."
+
+passing_score: 7.0
+improvement_threshold: 6.0  # Skills below this are prioritized for improvement
