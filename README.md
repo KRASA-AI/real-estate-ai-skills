@@ -13,14 +13,25 @@ This repo is a complete AI toolkit for real estate. Every skill is a standalone 
 
 | Skill | What it does | Time saved |
 |-------|-------------|------------|
-| 🏡 Listing Description Writer | Generate MLS-ready property descriptions from features, photos, and neighborhood details. | ~15 min/listing |
-| 📧 Buyer Follow-Up Sequence | Draft a multi-touch nurture sequence tailored to the buyer's search criteria and timeline. | ~10 min/lead |
-| 📊 Market Analysis Summary | Summarize comparable sales and market trends into a client-ready CMA narrative. | ~20 min/CMA |
-| ✅ Offer Review Checklist | Parse an offer and flag contingencies, timelines, and terms that need attention. | ~10 min/offer |
-| 🏠 Open House Recap Email | Generate a personalized follow-up email for each visitor based on sign-in notes. | ~5 min/visitor |
-| 📂 Transaction Coordinator Brief | Compile key dates, contacts, and docs into a clean hand-off brief for the TC. | ~15 min/deal |
+| Lease Abstraction Analyzer | Extract and summarize key terms, dates, financial obligations, and risk clauses from residential or commercial lease agreements into a structured, scannable brief. | ~30 min/lease |
+| Market Analysis Summary | Produce a concise, data-first market snapshot — weekly, monthly, or on-demand for a specific neighborhood, price band, or property type — that translates raw MLS numbers into a plain-English narrative an agent can paste into a client email, newsletter, social post, or buyer/seller conversation. | ~15 min/use |
+| Offer Review Checklist | Parse a purchase offer (or multiple competing offers) and produce a structured review that flags contingencies, evaluates financial strength, identifies timeline risks, highlights non-standard terms, and provides a clear comparison framework — so the listing agent and seller can make informed decisions quickly. | ~10 min/offer |
+| Pre-Launch Listing Audit | Generate a comprehensive pre-launch checklist and readiness audit for a new listing, ensuring the entire marketing ecosystem — photography, staging, MLS entry, social media, signage, email campaigns, and agent outreach — is coordinated and activated simultaneously for maximum launch impact. | ~15 min/listing |
+| 30-Day Social Content Calendar | Generate a full 30-day cross-platform social media calendar for a real estate agent — with hooks, captions, CTAs, Reels concepts, carousel ideas, and a daily posting schedule — tuned to the agent's market, brand voice, and the current month's seasonal/market themes. | ~4 hrs/month |
+| Buyer Follow-Up Sequence | Produce a complete, multi-touch nurture sequence — personalized to a specific buyer's search criteria, timeline, qualification status, and lead source — with ready-to-send messages across multiple channels (SMS, email, voicemail, handwritten note), a cadence optimized for their urgency tier, and branching paths for common responses and non-responses. | ~20 min/lead |
+| CMA Presentation Generator | Transform raw comparable sales data into a persuasive, client-ready Comparative Market Analysis presentation narrative with pricing recommendations and market positioning strategy. | ~25 min/presentation |
+| Lead Qualification BANT+ Script | Produce a structured, conversational qualification script (usable by a live agent, ISA, voicemail follow-up, chatbot, or email sequence) that reliably separates serious buyers and sellers from browsers — and outputs a 0–100 lead score with a routing recommendation — using an extended BANT framework adapted for real estate. | ~15 min/lead |
+| Listing Content Multiplier | Transform a single property listing into a complete, multi-platform marketing content package — 10+ ready-to-publish assets spanning social posts, Reels/TikTok scripts, email campaigns, carousels, blog content, and buyer-direct messaging — without rewriting from scratch for each channel. | ~3 hrs/listing |
+| Listing Description Writer | Generate MLS-ready property descriptions that are compelling, compliant with fair housing guidelines, optimized for search, and tailored to the target buyer persona — all from basic property details, agent notes, and optional photos. | ~15 min/listing |
+| Negotiation Script Generator | Generate situation-specific negotiation scripts, objection responses, and competitive offer strategies for buyer and seller representation scenarios. | ~20 min/scenario |
+| Neighborhood Report Generator | Create comprehensive, buyer-friendly neighborhood profiles that go beyond basic property details to cover schools, lifestyle, commute, safety, amenities, and market trends — helping buyers make informed location decisions and positioning you as the local expert. | ~20 min/report |
+| Open House Recap Email | Generate individualized post-open-house follow-up emails for each visitor — tiered by interest level, personalized from sign-in and agent notes, and paired with a clear next-step CTA — so that warm prospects get a concierge touch while casual browsers get a light, respectful follow-up that leaves the door open for later. | ~5 min/visitor |
+| Transaction Coordinator Brief | Compile all critical transaction details — key dates, contacts, financial terms, contingencies, and outstanding documents — into a structured hand-off brief so your TC can manage the file from contract to close without chasing down missing information. | ~15 min/deal |
+| Email Drafter | Turn rough notes into a professional email matching your company's voice and tone. | ~10 min/use |
+| Meeting Summarizer | Summarize meeting notes into action items, decisions, and follow-ups. | ~10 min/use |
+| Review Responder | Craft professional responses to online reviews — both positive and negative. | ~10 min/use |
 
-**Total time saved per use: ~75+ minutes across all skills.**
+**Total time saved per use: ~235+ minutes across all skills.**
 
 ## Quick Start
 
