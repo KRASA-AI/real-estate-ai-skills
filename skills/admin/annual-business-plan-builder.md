@@ -4,15 +4,24 @@ category: admin
 tools: [claude, chatgpt]
 difficulty: intermediate
 time_saved: "~4 hrs/year"
-version: 1.0
+version: 2.0
 last_eval_score: null
 ---
 
-# 📈 Annual Business Plan Builder
+# Annual Business Plan Builder
 
 ## Purpose
 
 Turn an agent's prior-year production, financial picture, personal goals, and preferred lead sources into a complete, one-page annual business plan that breaks an income target down into transaction count, lead-source quotas, weekly activities, and a personal-expense floor — and then cascades those numbers into quarterly, monthly, and weekly tracking. Produces a 1-3-5-style plan (one big goal, three priorities, five per-priority tactics) plus a scorecard the agent will actually reopen week after week rather than shelve in January.
+
+## Two-Stage Input Pattern
+
+This skill supports **two input modes** so the agent does not have to assemble seven data blocks (including sensitive personal financials) before getting any value:
+
+- **Pass 1 (Strategic Draft)** — minimum input: prior-year GCI, prior-year transaction count, goal GCI, top three lead-source preferences. The skill produces the full 1-3-5 plan, lead-source quotas (using market-default conversion anchors with each anchor flagged), the quarterly scoreboard, and the weekly scorecard. The "Financial Floor" section is generated as a *placeholder template* rather than a computed number. Pass 1 takes 5–10 minutes of the agent's time and produces a plan that is 80% useful by itself.
+- **Pass 2 (Financial-Floor Refinement)** — adds personal living expenses, business expenses, brokerage split schedule, tax rate, debt/savings targets. The skill replaces the placeholder Financial Floor with computed numbers, runs the floor-vs-target check, sizes the rolling reserve, and revises any quarterly transactions that no longer reconcile. Pass 2 typically takes 10–15 minutes and is what the agent does once the Pass 1 plan has survived their first read.
+
+The agent runs Pass 1 immediately and Pass 2 within the same week. Both passes are saved separately so the financial-floor data does not need to be re-entered if the strategic plan is revised mid-year.
 
 ## When to Use
 
@@ -20,13 +29,20 @@ Run this skill at the start of the year, at the start of a new quarter when the 
 
 ## Required Input
 
-Provide the following:
+### Pass 1 (Strategic Draft) — Minimum Input
 
-1. **Prior-year actuals** — Gross closed volume, transaction count, GCI (gross commission income), average sale price, average commission rate, and lead-source split (what percent of closed deals came from each source)
-2. **Personal financials** — Monthly personal living expenses (honest floor), monthly business expenses (CRM, tools, marketing, MLS, association dues, assistant), brokerage split schedule (with caps and post-cap rate), estimated tax rate, any owed debt or savings target, planned personal investments this year (new car, vacation, home purchase, retirement)
-3. **Goal target** — The agent's target GCI or take-home for the coming year, plus any stretch goal. If only a volume target is supplied, work backward through average sale price and commission rate
-4. **Lead-source preferences** — Which sources the agent intends to lean into (sphere of influence, past clients, open houses, online leads, geographic farm, social media, Zillow/Realtor.com premier, team leads, referrals, door-knocks, expired/FSBO, builder relationships) — with any budget allocation per source
-5. **Capacity constraints** — Solo agent, team member, team lead; hours per week working; vacation weeks planned; any known leave or transitions
+These four blocks are required for Pass 1. The skill will produce the strategic plan with placeholder financials.
+
+1. **Prior-year actuals** — Gross closed volume, transaction count, GCI, average sale price, average commission rate, and (if available) lead-source split. If the agent only knows GCI and transaction count, that's enough — the skill will infer the rest from market norms and flag the inferences
+2. **Goal target** — The agent's target GCI or take-home for the coming year, plus any stretch goal
+3. **Top three lead-source preferences** — Which sources the agent will lean into (sphere of influence, past clients, open houses, online leads, geographic farm, social media, Zillow/Realtor.com premier, team leads, referrals, door-knocks, expired/FSBO, builder relationships)
+4. **Capacity constraints** — Solo / team member / team lead; hours per week; vacation weeks planned
+
+### Pass 2 (Financial-Floor Refinement) — Additional Input
+
+Provide these blocks once the Pass 1 plan has been read and the agent is ready to commit:
+
+5. **Personal financials** — Monthly personal living expenses (honest floor), monthly business expenses (CRM, tools, marketing, MLS, association dues, assistant), brokerage split schedule (with caps and post-cap rate), estimated tax rate, any owed debt or savings target, planned personal investments this year (new car, vacation, home purchase, retirement)
 6. **Skills to improve** — Two or three skills the agent wants to develop this year (listing presentation, video, negotiation, farming, CRM discipline, running an ISA, recruiting)
 7. **Personal goal alignment** — The 2–3 reasons the number matters (specific trip, debt payoff, savings milestone, family milestone) — keeps the plan emotionally anchored
 
@@ -40,6 +56,8 @@ You are a real estate business coach and planner. Your job is to produce a numer
 - Do not flatter the prior year. Do not flatter the goal. Work the math both ways and tell the agent if the plan is off.
 
 **Process:**
+
+0. **Identify which pass is running.** If only the Pass-1 input set is supplied, the Financial Floor section is generated as a parameterized template ("Floor will be computed in Pass 2 — current placeholder is *X% of target* using market defaults") and the rolling-reserve recommendation is held until Pass 2. Every other section runs to completion in Pass 1. If the full input set (Pass 1 + Pass 2) is supplied, run all sections to completion. A re-run with only Pass 2 inputs supplied (against an existing Pass-1 plan stored in `outputs/`) updates only the Financial Floor and the risk flags that depend on it; do not re-write the 1-3-5 or quarterly scoreboard unless the floor check breaks the goal math.
 
 1. **Diagnose the prior year.** Produce three honest observations: what worked (sources above their share), what didn't (sources below expectation), and where the time leaked (agents typically over-invest in one low-ROI source). Tag each observation with a number. No generic "you did great" framing — either the prior year was profitable or it wasn't.
 
@@ -79,10 +97,11 @@ You are a real estate business coach and planner. Your job is to produce a numer
 **Critical rules:**
 - Math must reconcile: weekly × weeks per quarter = quarterly × 4 = annual, with explicit allowance for vacation weeks
 - Do not assume conversion rates better than the agent's own prior-year data; use the lower number
-- Do not produce a plan that collapses on one bad month — require a reserve line
-- Personal expenses are the floor, not a footnote. Plans that don't cover them are flagged aggressively.
+- Do not produce a plan that collapses on one bad month — require a reserve line (Pass 2)
+- Personal expenses are the floor, not a footnote. Plans that don't cover them are flagged aggressively (Pass 2)
 - Every tactic has a measurable outcome. "Do more social media" is not a tactic. "Post 3 Reels/week to Instagram and track save-rate" is.
 - Do not fabricate average sale price, commission rates, or conversion anchors — use supplied values or clearly flag the anchors as market defaults
+- Pass 1 is allowed to ship without personal financials, but the output must explicitly state which sections are placeholders and what Pass 2 will refine. Never let Pass 1 be confused for a complete plan.
 
 ## Example Output
 
