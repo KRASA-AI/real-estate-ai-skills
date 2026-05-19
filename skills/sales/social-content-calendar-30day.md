@@ -4,8 +4,8 @@ category: sales
 tools: [claude, chatgpt]
 difficulty: intermediate
 time_saved: "~5 hrs/month"
-version: 2.0
-last_eval_score: null
+version: 3.0
+last_eval_score: 8.80
 ---
 
 # 30-Day Social Content Calendar
@@ -16,28 +16,63 @@ Generate a full 30-day cross-platform social media calendar for a real estate ag
 
 ## When to Use
 
-Use this skill at the start of each month; when onboarding a new agent who has no content plan; when entering a slow season and needing to stay visible; when transitioning to a new neighborhood farm area and wanting a structured local-authority play; **after `agent-discoverability-audit.md` has run and produced the Phase 3 cadence reset** (the audit's 90-day plan typically caps cadence at the agent's stated time budget; the calendar honors that ceiling); **after a new listing launches** (the calendar's Active Inventory slots get filled by `listing-video-workflow.md`'s six-cut taxonomy + `listing-content-multiplier.md`'s 10-piece package — not by ad-hoc captions); when a seller in `seller-intent-scorer.md`'s Mid-Marketing stage at the 40–59 marketing-tactic band needs a coordinated calendar reset; when an agent's Content-Engine Taste Score (D1–D5 from `agent-discoverability-audit.md`) is below 7 and the calendar needs explicit anti-slop guardrails. Pairs with `listing-video-workflow.md` (canonical six-cut taxonomy + posting-cadence deconfliction; the calendar's Reel/Short slots are filled by Reel/Short cuts, not by improvised content), `listing-content-multiplier.md` (canonical 10-piece package per active listing; the calendar's Active Inventory pillar slots are filled by package pieces), `agent-discoverability-audit.md` (upstream — the audit's Phase 3 cadence reset is a direct input; the audit's D1–D5 Content-Engine Taste Score governs the calendar's anti-slop rubric; the audit's L0–L3 Brand-Voice + Voice-Clone Asset Inventory governs which voice is used in which slot), `open-house-recap-email.md` (downstream — the calendar's open-house slots produce post-event content), `neighborhood-report-generator.md` (sibling — the Local Authority pillar slots are filled by neighborhood-report excerpts and CTAs), `ai-marketing-compliance-audit.md` (downstream — every L2 voice-clone or L3 stock-synthetic narration in the calendar's Reel/Short slots routes through the compliance audit), `ai-fraud-defense-playbook.md` (cross-link — Cadence-Honesty-violating "10 Reels per day" patterns are a fraud-grade signal of voice-clone misuse; the calendar's volume cap is a defense-in-depth control).
+**Quick Start — no prior skill outputs required.** The minimum viable run requires only the five Required Core inputs in Section A below. Companion-skill outputs improve calendar quality but are never blocking — every companion has a documented fallback default.
+
+**Use cases:**
+
+- Start of each month — the canonical monthly run
+- Onboarding a new agent with no content plan in place
+- Entering a slow season and needing to stay visible
+- Transitioning to a new neighborhood farm area (structured local-authority play)
+- After `agent-discoverability-audit.md` produces a Phase 3 cadence reset (the audit's 90-day plan typically caps cadence at the agent's stated time budget; this calendar honors that ceiling)
+- After a new listing launches (Active Inventory slots are filled by the listing's six-cut and 10-piece package — see fallback table below if those have not been run)
+- When a seller in `seller-intent-scorer.md`'s Mid-Marketing stage at the 40–59 marketing-tactic band needs a coordinated calendar reset
+- When an agent's Content-Engine Taste Score (D1–D5 from `agent-discoverability-audit.md`) is below 7 and the calendar needs explicit anti-slop guardrails
+
+**Companion skills reference (each has a fallback):**
+
+| Companion skill | What it contributes | Default if not run |
+|---|---|---|
+| `agent-discoverability-audit.md` | Phase 3 cadence reset; D1–D5 Taste Score; L0–L3 Voice-Clone Asset Inventory | Calendar defaults to Steady-band cadence and L0/L1 voice only (no clone, no synthetic) |
+| `listing-video-workflow.md` | Canonical six-cut per active listing | Active Inventory slots flagged `[NEEDS LISTING ASSETS]` with a per-slot brief the agent can hand to a videographer |
+| `listing-content-multiplier.md` | Canonical 10-piece package per active listing | Active Inventory slots fall back to a 3-piece minimum: Just-Listed Post, Email Blast, Open-House Invite |
+| `neighborhood-report-generator.md` | Local Authority pillar source excerpts | Local Authority slots default to agent farm-walk observations + MLS-stat captions |
+| `market-analysis-summary.md` | Confidence-labeled headline market stats | Market-stat captions default to plain MLS pulls with "agent observation" confidence band |
+| `open-house-recap-email.md` | Post-open-house content | Open-house recap slots default to agent's own visitor-count + one standout-feature note |
+| `ai-marketing-compliance-audit.md` | Final compliance sweep before publish | Calendar runs its own embedded 7-check sweep; agent self-audits using the checklist |
 
 ## Required Input
 
-Provide the following:
+### A. Required Core (5 items — sufficient for a minimum viable run)
 
-1. **Agent profile** — Name, brokerage, primary farm area / neighborhoods, years in business, ideal client profile, specialization (T1–T5 tier from `agent-discoverability-audit.md` if available — the calendar's Local Authority pillar pivots on tier).
-2. **Brand voice** — 2–3 descriptors (e.g., "warm and local," "polished luxury," "data-driven," "energetic and millennial"). If `agent-discoverability-audit.md` has run, the audit's voice-fidelity (D1) score governs the cadence rule for AI-edited content.
-3. **Target month** — The calendar month the plan covers (affects seasonality, holidays, school calendar). Daily template loads relevant local-event signals (`knowledge-base/best-practices/[market]/calendar-[month].md` if maintained).
-4. **Active platforms** — Which channels the agent posts to. The calendar honors the eight-platform aspect-duration matrix (below) only for platforms the agent actually uses. Selecting all eight when the agent only ships to three is a cadence-honesty violation — the calendar will compress.
+1. **Agent profile** — Name, brokerage, primary farm area / neighborhoods, years in business, ideal client profile.
+2. **Brand voice** — 2–3 descriptors (e.g., "warm and local," "polished luxury," "data-driven," "energetic and millennial").
+3. **Target month** — The calendar month the plan covers (affects seasonality, holidays, school calendar).
+4. **Active platforms** — Which channels the agent posts to (the eight-platform aspect-duration matrix below honors only platforms actually used).
 5. **Time budget** — Hours/week the agent commits. Three bands:
-   - **Light** (< 2 hr/wk): max 3 posts/wk on primary platform; 1 Reel/Short max; no carousels; the calendar reduces.
+   - **Light** (< 2 hr/wk): max 3 posts/wk on primary platform; 1 Reel/Short max; no carousels.
    - **Steady** (2–5 hr/wk): 5–7 posts/wk on primary; 2 Reels/Shorts; weekly newsletter; default band.
    - **Heavy** (5+ hr/wk): 7+ posts/wk on primary; 3 Reels/Shorts; weekly newsletter + biweekly long-form; supports T5 luxury-tier output.
    The Cadence Honesty constraint enforces: stated band × 30 days = max output. The calendar will not exceed.
-6. **Active listings or upcoming launches** — For each: address, price, status (Coming Soon / Just Listed / On Market / Open House This Week / Price-Reduced / Pending / Recently Sold). The calendar's Active Inventory slots reference the listing's `listing-video-workflow.md` six-cut output (Flagship 60–90s / Reel 22–35s / Short 12–18s / Teaser 5–8s / Just-Listed 8–12s / Still-Available Refresh 14–20s) and `listing-content-multiplier.md`'s 10-piece package (the canonical per-listing content set). Listings without a six-cut or 10-piece package run get a `[NEEDS LISTING ASSETS]` flag on those slots.
-7. **Local events** — Known events in the farm area (farmers markets, school calendar, community events, seasonal openings). The calendar's Local Authority pillar slots reference local events explicitly.
-8. **Current market context** — One-sentence summary, ideally sourced from `market-analysis-summary.md`'s confidence-labeled output (e.g., "March 2026 90042 SFR 3BR+: MOI 2.4 (sub-3 sub-band, High confidence); list-to-sale 100.4%; DOM median 19; rates 6.1%"). Calendar uses confidence labels in any market-stat caption.
-9. **Content pillars** (optional) — If the agent has defined pillars, use them; otherwise default to the five-pillar mix (below).
-10. **Brand-Voice + Voice-Clone Asset Inventory** (from `agent-discoverability-audit.md` Step 6 if the audit has run) — Which slots default to L0 (live agent voice) vs. L1 (pre-recorded agent voice) vs. L2 (cloned voice) vs. L3 (stock synthetic). Calendar slots inherit the appropriate L-tier per the audit; if the audit has not run, the calendar defaults to L0 / L1 only.
-11. **Compliance posture** — Brokerage rules, state advertising rules (CA, TX, NY, FL most-restrictive jurisdictions), whether the agent works in any of the AI-disclosure-strict jurisdictions (CA AB 723, IL HB 4762, UT SB 149, CO SB24-205, TX HB 149, FL SB 442). The 7-check compliance sweep adapts.
-12. **Agent config** — `config.yml` for brokerage, license #, Equal Housing disclaimer, CAN-SPAM footer, and preferred caption voice. Auto-loaded.
+
+### B. Optional Enrichment (7 items — each carries a default if omitted)
+
+6. **Active listings or upcoming launches.** For each: address, price, status (Coming Soon / Just Listed / On Market / Open House This Week / Price-Reduced / Pending / Recently Sold).
+   *Default if omitted:* The calendar reduces Active Inventory pillar to 0% and rebalances to Local Authority (40%) + Process Education (25%) + Behind-the-Scenes (20%) + Social Proof (15%).
+7. **Listing assets per active listing** (six-cut from `listing-video-workflow.md`; 10-piece package from `listing-content-multiplier.md`).
+   *Default if omitted:* Active Inventory slots flagged `[NEEDS LISTING ASSETS]` with the per-slot videographer/copy brief; the agent can run companion skills later and back-fill.
+8. **Local events** — Known events in the farm area (farmers markets, school calendar, community events, seasonal openings).
+   *Default if omitted:* Local Authority slots default to neighborhood-walk observations and seasonal evergreen content.
+9. **Current market context** — One-sentence summary, ideally sourced from `market-analysis-summary.md`'s confidence-labeled output (e.g., "March 2026 90042 SFR 3BR+: MOI 2.4 (sub-3 sub-band, High confidence); list-to-sale 100.4%; DOM median 19; rates 6.1%").
+   *Default if omitted:* Market-stat captions are suppressed; the calendar runs without "how's the market" content rather than fabricating numbers.
+10. **Content pillars** — If the agent has defined pillars, use them.
+    *Default if omitted:* The five-pillar mix (Local Authority / Active Inventory / Process Education / Behind-the-Scenes / Social Proof).
+11. **Brand-Voice + Voice-Clone Asset Inventory** (from `agent-discoverability-audit.md` Step 6) — Which slots default to L0 / L1 / L2 / L3.
+    *Default if omitted:* Calendar defaults to L0 / L1 only — no cloned voice, no stock synthetic. The agent can layer L2/L3 manually only after running the discoverability audit and the compliance audit.
+12. **Compliance posture** — Brokerage rules, state advertising rules (CA, TX, NY, FL most-restrictive jurisdictions), AI-disclosure-strict jurisdictions (CA AB 723, IL HB 4762, UT SB 149, CO SB 24-205, TX HB 149, FL SB 442).
+    *Default if omitted:* The 7-check compliance sweep runs against the most-restrictive jurisdiction in `config.yml`'s state field; the agent reviews any L2/L3 voice slots before publish.
+
+13. **Agent config** — `config.yml` for brokerage, license #, Equal Housing disclaimer, CAN-SPAM footer, preferred caption voice. Auto-loaded; if absent, the calendar runs but flags the missing config and supplies generic disclaimer placeholders.
 
 ## Instructions
 

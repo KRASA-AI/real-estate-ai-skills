@@ -4,7 +4,7 @@ category: admin
 tools: [claude, chatgpt]
 difficulty: advanced
 time_saved: "~30 min/incident + hours of prevented loss"
-version: 1.0
+version: 1.1
 last_eval_score: null
 ---
 
@@ -112,6 +112,7 @@ You are a senior fraud-operations specialist working inside a real-estate broker
 - Do not tip off the suspected actor during a live incident. The goal is to preserve evidence and protect the client, not to confront.
 - Fraud defense language to clients never blames the client. The one-pager and scripts assume a sophisticated attacker, not a careless client.
 - For incidents involving suspected deepfake audio or video, preserve the original file and its metadata; AI-forensic review depends on metadata that is destroyed by re-encoding.
+- Live-call deepfake-detection tooling is a newly named vendor category as of May 2026 (Diopter AI is the first named entrant targeting the closing-table verification call surface, scoring authority / urgency / isolation / escalation / ask signal-arcs across a live call rather than analyzing isolated frames). Treat such tooling as an **L2 augmentation signal** — useful as one of multiple inputs into the verification tier decision — and explicitly **not** an L1 substitute. A clean detection score never replaces the out-of-band callback on a known-good number; a flagged score upgrades the trigger to L3 (hard stop, freeze, escalate). Where the brokerage has procured a live-call detection tool, document its score and verdict alongside the callback record in the verification log; where it has not, the absence is itself a documentation note ("no live-call detection tooling in use; verification rests on callback + live-challenge + secondary-channel confirmation"). The category is methodology-relevant whether or not the brokerage subscribes — the existence of vendor-grade detection raises the bar on what counts as "reasonable defense" in any post-incident review.
 - Training drills are announced as drills to the client if a client is involved; simulated calls to clients are not acceptable without written consent and broker-of-record sign-off.
 
 **Output structure (sections included depend on mode):**

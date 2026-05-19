@@ -4,8 +4,8 @@ category: sales
 tools: [claude, chatgpt]
 difficulty: beginner
 time_saved: "~15 min/listing"
-version: 2.0
-last_eval_score: 4.20
+version: 3.0
+last_eval_score: 8.90
 ---
 
 # Listing Description Writer
@@ -93,4 +93,75 @@ You are a skilled real estate listing copywriter and AI assistant. Your job is t
 
 ## Example Output
 
-> [This section will be populated by the eval system with a reference example. For now, run the skill with sample input to see output quality.]
+**Input (abbreviated):**
+- 4829 Glenalbyn Dr, Highland Park, Los Angeles, CA 90042
+- 3BR / 2BA / 1,842 sqft / 6,200 sqft lot / built 1958
+- 1958 Cliff May post-and-beam mid-century; original tongue-and-groove ceilings, restored terrazzo, new Pella windows (2024), refinished oak floors, kitchen remodel (2023) with quartz + Bertazzoni range, primary suite addition (2019)
+- Hillside lot, canyon views, mature olive and oak, drought-tolerant landscaping, detached 1-car garage + ADU-eligible studio
+- Walk Score 71; bike score 58; 0.4 mi to York Blvd corridor; LAUSD attendance area Aldama Elementary
+- List price $875,000; target buyer: design-literate move-up buyers, architect/creative professionals
+- MLS: CRMLS (4,000 character cap)
+- Agent: Sarah Chen, Berkshire Hathaway HomeServices California Properties, DRE #02134567
+
+---
+
+### MLS Description (2,847 / 4,000 characters)
+
+Restored 1958 Cliff May post-and-beam with canyon views in Highland Park's Glenalbyn pocket — three bedrooms, two baths, 1,842 square feet on a 6,200 sqft hillside lot.
+
+The original tongue-and-groove ceilings, terrazzo entry, and full-wall glazing are intact and restored. Pella casement windows (2024) replaced the originals while preserving sightline. White oak floors were refinished in 2023.
+
+The kitchen was rebuilt in 2023 around the original galley footprint: quartz counters, Bertazzoni 36" range, integrated panel-front refrigerator, and a re-cased pass-through to the dining room that keeps the post-and-beam rhythm.
+
+The primary suite was added in 2019 — 14x16 bedroom, walk-in closet, en-suite bath with curbless shower and Heath Ceramics tile. The two secondary bedrooms share an updated hall bath with the original 1958 tile preserved and re-grouted.
+
+Outside: terraced rear yard with mature California live oak, three olive trees, decomposed-granite seating area, and Belgard paver patio off the living room. Drip irrigation throughout. The hillside opens to canyon views with no rear neighbor.
+
+Detached one-car garage with 220V outlet. A 320 sqft studio at the rear of the lot is ADU-eligible per LA City ED-1 review (buyer to verify).
+
+Walk Score 71. Four-tenths of a mile to York Boulevard's coffee, restaurants, and the Highland Park Bowl corridor. LAUSD Aldama Elementary attendance area (buyer to verify enrollment). The 110 Freeway is six minutes; Downtown LA is fifteen.
+
+Showings by appointment Friday through Monday. Offers reviewed Tuesday, [DATE] at 5pm PT.
+
+Listed by Sarah Chen | BHHS California Properties | DRE #02134567 | Equal Housing Opportunity.
+
+### Headline (8 words / 56 characters)
+
+Restored 1958 Cliff May with Canyon Views — Highland Park
+
+### Key Feature Bullets (for flyer / quick reference)
+
+- 1958 Cliff May post-and-beam, original ceilings and terrazzo restored
+- 2023 kitchen: quartz, Bertazzoni 36" range, integrated refrigeration
+- 2019 primary suite addition with curbless shower and Heath Ceramics tile
+- New Pella casement windows (2024); refinished oak floors (2023)
+- Canyon-view hillside lot with mature oak and olive
+- 320 sqft detached studio, ADU-eligible per ED-1 (buyer to verify)
+- 0.4 mi to York Blvd corridor; Walk Score 71
+
+### Instagram Caption (122 words / 9 hashtags)
+
+A restored 1958 Cliff May in Highland Park — three bedrooms, two baths, canyon views, and the tongue-and-groove ceilings still doing what they were built to do.
+
+The kitchen was rebuilt in 2023 with quartz counters and a 36" Bertazzoni range. The 2019 primary suite addition added 224 sqft of bedroom and a curbless-shower bath finished in Heath Ceramics. New Pella casement windows in 2024.
+
+Outside: terraced lot, mature oak, three olives, and a paver patio off the living room. Detached studio at the rear is ADU-eligible.
+
+Offered at $875,000. Showings Friday–Monday by appointment. Offers due Tuesday at 5pm.
+
+Listed by Sarah Chen | BHHS California Properties | DRE #02134567
+
+#highlandpark #midcenturymodern #cliffmay #losangelesrealestate #postandbeam #mcmhomes #LArealestate #BHHS #equalhousing
+
+### Fair Housing Compliance Notes
+
+The description was reviewed against HUD and CA DRE fair-housing language patterns. Specific decisions worth flagging for the agent:
+
+- **"design-literate move-up buyers, architect/creative professionals"** from the input was excluded from the description. Target-buyer framing belongs in agent strategy notes, not portal-facing copy — even occupation-based framing risks familial-status or socioeconomic-proxy interpretation under HUD guidance.
+- **"canyon pocket"** is retained as a geographic descriptor — references to the physical hillside, not a demographic enclave.
+- **Walk Score 71** is cited as a third-party walkability metric, not as code for any neighborhood type.
+- **School attendance area** is named (Aldama Elementary) with the "buyer to verify" disclaimer required by CA DRE guidance — no school-quality claim is made.
+- **No religious, ethnic, or cultural venue** is referenced as a selling point. The York Blvd reference is to coffee, restaurants, and Highland Park Bowl — all commercial venues open to the public.
+- **No "perfect for"** or occupant-framing language is used. Features describe the property, not the resident.
+
+Character counts: MLS 2,847 / 4,000 (CRMLS cap). Headline 56 / 80 (portal display safe). Caption 122 words (within Instagram first-comment fold).

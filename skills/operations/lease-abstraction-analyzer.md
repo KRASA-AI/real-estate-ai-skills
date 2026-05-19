@@ -4,8 +4,8 @@ category: operations
 tools: [claude, chatgpt]
 difficulty: intermediate
 time_saved: "~45 min/lease"
-version: 2.0
-last_eval_score: null
+version: 3.0
+last_eval_score: 8.80
 ---
 
 # Lease Abstraction Analyzer
@@ -38,6 +38,40 @@ You are a senior lease analyst working on behalf of the agent or asset manager. 
 - Load `config.yml` for brokerage state, market conventions, and notification preferences
 - Reference `knowledge-base/terminology/` for lease-family-specific terminology (CAM pools, gross-up provisions, base-year stops, percentage-rent breakpoints)
 - Never assume a field from context when the lease is silent — leave it blank and flag it as "Silent — confirm with counsel" in the anomaly report
+- Load the **Market & Jurisdiction Context** block below before extracting any field — every extracted term gets a "[Market note — {state or metro}]:" footnote where the local convention or statute changes the term's meaning
+
+**Market & Jurisdiction Context (load before extraction):**
+
+*Residential lease defaults — 6 state matrix:*
+
+| State | Sec. dep. return window | Entry notice | Rent-control exposure | Key statutory flags |
+|---|---|---|---|---|
+| **CA** | 21 days (itemized) | 24 hr written | AB 1482 statewide cap (10% or 5%+CPI, whichever lower; exemptions: <15yr SFR, owner-occupied 2-units) + local ordinances (LA RSO, SF, Oakland, Berkeley) | CA Civ. Code §1950.5 (deposit); CA AB 12 caps deposit at 1 month for most landlords (eff. 7/1/2024) |
+| **TX** | 30 days | None statutory | None — Texas preempts local rent control | TX Prop. Code §92 (security deposit); no statewide rent-control exposure but verify city ordinance for entry-notice norms |
+| **NY** | 14 days | None statutory but "reasonable" | HSTPA 2019 (rent-stabilized: ~1M units NYC; vacancy-decontrol abolished) + ETPA upstate opt-ins | RPL §238-a (no app fee >$20); HSTPA limits late fees to $50 or 5% |
+| **FL** | 15 days (no claim) / 30 days (with claim) | 12 hr written for repairs | None — FL preempts local rent control absent state declared emergency | FL §83.49 (deposit); hurricane-insurance clauses are tenant-pass-through-prone — flag |
+| **IL** | 30 days (Chicago RLTO: 30–45 days with interest) | 24 hr (Chicago) | None statewide; Chicago RLTO does not control rent but governs deposits | Chicago RLTO §5-12 (interest-bearing deposit; treble damages on wrongful withhold) |
+| **WA** | 30 days | 48 hr written (entry); 24 hr (showings) | None statewide; Seattle just-cause eviction + SMC 22.206 | WA RCW §59.18; statewide just-cause for month-to-month (2021) — flag if lease is silent on cause |
+
+*Commercial lease conventions — 7-metro matrix:*
+
+| Metro | Dominant rent structure | Typical CAM admin fee | Market-specific anomaly flags |
+|---|---|---|---|
+| **Los Angeles** | Office: full-service / modified-gross. Retail: NNN. Industrial: NNN. | 10–15% of controllable | **Earthquake insurance** as separate operating-expense line (often $0.40–$0.80/RSF) — flag if pooled into CAM without category disclosure. SB 1103 (eff. 1/1/2025) extends limited tenant protections to commercial small-business and nonprofit tenants — flag if lease is silent on translations / notice. |
+| **San Francisco** | Office: full-service. Retail: NNN. | 10–15% | Earthquake insurance pass-through; **Prop M office-allocation** legacy disclosures; **Prop H formula retail** use restrictions in some districts. |
+| **New York City** | Office: modified-gross with base-year stops. Retail: NNN. | 15% of controllable (typical) | **Local Law 97** carbon pass-through (eff. 2024; fines escalate 2030) — flag if lease silent on tenant share of LL97 fines/retrofits. **ICAP / 421-a tax-abatement** disclosures. **Loft Law** if a NYC commercial space has any residential conversion history. |
+| **Dallas–Houston (TX metros)** | Office: full-service. Retail: NNN. Industrial: NNN/absolute-net. | 10–15% | **Annual property-tax reassessment** (TX has no income tax; ad valorem swings are the dominant CAM volatility line) — flag if lease lacks cap on tax pass-through or HB 3 protest pass-through procedure. **Texas Tax Code §41.413** tenant-protest standing. |
+| **Miami** | Office: modified-gross / full-service. Retail: NNN. Industrial: NNN. | 10–15% | **Hurricane / windstorm insurance** is the dominant pass-through volatility — flag tenant cap and deductible-allocation language. **Citizens Property Insurance** assessment exposure if private market unavailable. Sea-level / flood-zone NFIP designation. |
+| **Chicago** | Office: full-service / modified-gross. Retail: NNN. Industrial: NNN. | 12–15% | **Cook County property tax reassessment** triennial cycle (one of three sub-county groups each year) is the dominant CAM volatility line. **Chicago Landmark Commission** restrictions in landmark districts limit signage and alterations — flag if subject building is landmarked and lease lacks landmark-permitting allocation. |
+| **Seattle** | Office: full-service. Retail: NNN. Industrial: NNN. | 10–15% | **SMC 22.220** commercial-tenant translation and notice rules (eff. 2024). **Statutory employer-contribution** (Seattle JumpStart payroll tax) — flag if lease pass-through of payroll tax is silent. **Earthquake insurance** as separate line for older buildings. |
+
+*Footnote convention:* Throughout the abstract and anomaly report, use the standardized format:
+
+> *[Market note — {metro or state}]: {one-sentence plain-language explanation of why this term, value, or omission matters specifically in this market}.*
+
+For example: *[Market note — Miami]: Hurricane-insurance deductible is allocated 100% to tenant — in this market that historically lands at $50K–$150K out-of-pocket per named-storm event; flag for negotiation if tenant did not separately quote.*
+
+If the brokerage state in `config.yml` is not one of the six residential matrix states or the metro is not one of the seven commercial matrix metros, generate the abstract without market footnotes but include a top-of-report flag: "Market & Jurisdiction Context — out-of-matrix; agent should layer local convention manually."
 
 **Process:**
 
