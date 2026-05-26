@@ -4,7 +4,7 @@ category: operations
 tools: [claude, chatgpt]
 difficulty: intermediate
 time_saved: "~30 min/listing"
-version: 2.0
+version: 3.0
 last_eval_score: null
 ---
 
@@ -16,19 +16,38 @@ Turn a signed listing agreement into a coordinated, channel-by-channel launch pa
 
 ## When to Use
 
+**Quick Start — minimum viable run.** Provide the property file, the target go-live date, and the brokerage channel set from `config.yml`. The skill produces all nine output sections with documented defaults for any input that is not supplied (see Required Input Section B). A first-time user can run the audit on the day of the listing-agreement signature without coordinating with the photographer, the marketing coordinator, or the TC first; subsequent re-runs at D-7 and D-1 sharpen the audit as those inputs arrive.
+
 Use this skill the day a listing agreement is signed, before any photographer is booked or any caption drafted. Re-run it the day before go-live as a final readiness check. The skill complements `listing-description-writer.md` and `listing-feature-engagement-optimizer.md` (which produce the copy and feature-prioritization), `cma-presentation-generator.md` (which produces the pricing rationale), and `listing-content-multiplier.md` (which produces the channel-specific captions). The audit makes sure the assets those three skills produce are loaded into every channel, with the right metadata, in the right order, on the right day.
+
+### Companion Skills Reference
+
+| Companion skill | Contribution | Default if not run |
+|---|---|---|
+| `listing-feature-engagement-optimizer.md` | Lead-With / Support-With / Deemphasize feature ranking | Audit infers from property file; flags as "heuristic — re-run after engagement scorer" |
+| `listing-description-writer.md` | MLS public remarks + portal copy | Audit produces a copy-stub with the Lead-With opener and notes "[awaiting copy]" elsewhere |
+| `cma-presentation-generator.md` | Pricing rationale | Audit uses list price from listing agreement; flags "price band rationale not yet on file" |
+| `listing-content-multiplier.md` | Channel-specific captions (IG, FB, email, signage) | Audit produces caption stubs with placeholder hooks per channel |
+| `neighborhood-report-generator.md` | Q&A block + named amenities with citations | Audit flags Q&A block as "[deferred — generate at D-3]" |
+| `ai-marketing-compliance-audit.md` | Cross-channel compliance audit on the asset stack | Audit performs fair-housing + AI-disclosure sweep itself; flags "deep AI-content review deferred to D-3 compliance pass" |
+| `transaction-coordinator-brief.md` | TC happy-path handoff | Audit emits the TC handoff paragraph; brief is generated post-launch |
 
 ## Required Input
 
-Provide the following:
+### Section A — Required Core (5 items, audit cannot run without)
 
 1. **Property file** — Address, property type, MLS area, beds/baths/SF, list price, key features, hard constraints (seller-occupied vs. vacant, lockbox vs. appointment, pet present, tenant present)
 2. **Timeline** — Listing agreement date, target go-live date, hard constraints (seller move-out, contractor finish, photographer earliest-available)
-3. **Services booked or to be booked** — Photographer (with shot-list provider), videographer, drone, stager, cleaner, sign installer, brokerage marketing team
-4. **Channel set** — Confirm which of: primary MLS (with named system), Zillow direct or via syndication, Realtor.com, brokerage website, agent website, Instagram, Facebook, TikTok, YouTube, sphere email list, brokerage email blast, paid digital (Meta / Google / display), Nextdoor, postcards, broker tour, agent caravan, public open house schedule
-5. **Team roster** — Listing agent, transaction coordinator, marketing coordinator, showing partner, sign installer, lockbox installer; one named owner per channel
-6. **Compliance context** — State (fair-housing rules vary on familial-status interpretation), MLS rules (any-AI-content disclosure, days-on-market reset rules, "coming soon" status duration), brokerage policies (broker-of-record approval thresholds, AI-content disclosure stance)
-7. **Agent config** — `config.yml` for brokerage state, voice, default channel set
+3. **Channel set** — Confirm which of: primary MLS (with named system), Zillow direct or via syndication, Realtor.com, brokerage website, agent website, Instagram, Facebook, TikTok, YouTube, sphere email list, brokerage email blast, paid digital (Meta / Google / display), Nextdoor, postcards, broker tour, agent caravan, public open house schedule. If absent, default to `config.yml`'s `default_channel_set`
+4. **Team roster** — Listing agent, transaction coordinator, marketing coordinator, showing partner, sign installer, lockbox installer; one named owner per channel. If absent, default to `config.yml`'s `default_launch_team_roles`
+5. **Agent config** — `config.yml` for brokerage state, voice, default channel set, BOR contact, compliance officer, and known-good vendor list (auto-loaded)
+
+### Section B — Optional Enrichment (4 items, each with a per-item fallback)
+
+6. **Services booked or to be booked** — Photographer (with shot-list provider), videographer, drone, stager, cleaner, sign installer, brokerage marketing team. *Default if omitted:* audit assumes `config.yml`'s `preferred_vendors` list and flags "vendor confirmation pending" against each service line in the D-14 → D-7 phase.
+7. **Compliance context** — State (fair-housing rules vary on familial-status interpretation), MLS rules (any-AI-content disclosure, days-on-market reset rules, "coming soon" status duration), brokerage policies (broker-of-record approval thresholds, AI-content disclosure stance). *Default if omitted:* audit pulls jurisdiction defaults from `knowledge-base/compliance/{state}.yml` and flags state/MLS-specific items as "[VERIFY — defaulted from knowledge base]".
+8. **Upstream skill outputs** — Feature-engagement priority list, CMA pricing rationale, listing-description draft, channel-specific captions, neighborhood Q&A block. *Default if omitted:* per the Companion Skills Reference table above, the audit produces stubs and flags each downstream deliverable as "[awaiting upstream skill output]".
+9. **Open-house and broker-tour preferences** — Preferred first open-house weekend, broker-tour day-of-week, food/drink budget. *Default if omitted:* audit schedules first public open at D+2 or D+3 weekend (whichever falls first) and broker tour at D+4 weekday morning.
 
 ## Instructions
 
@@ -162,17 +181,17 @@ You are a senior listing launch coordinator on behalf of the agent. Your job is 
 - This skill produces an audit, not legal advice. Compliance findings get routed to the broker, the brokerage compliance officer, or counsel; resolution is theirs
 - A pre-launch audit with more than five Blocking items is not a launch — it's a re-prep. Tell the agent plainly rather than producing a Runsheet that will collapse on D-day
 
-**Output structure (always in this order):**
+**Output structure (always in this order — section numbers match Process step numbers 1:1):**
 
-1. **Launch Identifier** — address, list price, target launch date, channels in use, named owners
-2. **Reverse-Sequenced Action Plan (D-14 to D+7)** — phase / item / owner / deadline / dependency
-3. **Per-Channel Readiness Checklist** — pass/fail per field, per channel
-4. **Visual Asset Audit** — feature-engagement compliance check
-5. **Copy Audit** — fair-housing, AI-disclosure, channel consistency
-6. **Compliance Sweep** — Blocking / Material / Advisory with citations
-7. **Launch-Day Runsheet** — hour-by-hour with owners and fallbacks
-8. **Post-Launch Monitoring Plan** — D+1 to D+7 dashboard and adjustment triggers
-9. **TC Handoff Paragraph + CRM Status Line**
+0. **Launch Identifier** — address, list price, target launch date, channels in use, named owners (header before §1; populated by Step 1's reverse-calendar lock-in)
+1. **Reverse-Sequenced Action Plan (D-14 to D+7)** — phase / item / owner / deadline / dependency (from Process Step 1)
+2. **Per-Channel Readiness Checklist** — pass/fail per field, per channel (from Process Step 2)
+3. **Visual Asset Audit** — feature-engagement compliance check (from Process Step 3)
+4. **Copy Audit** — fair-housing, AI-disclosure, channel consistency (from Process Step 4)
+5. **Compliance Sweep** — Blocking / Material / Advisory with citations (from Process Step 5)
+6. **Launch-Day Runsheet** — hour-by-hour with owners and fallbacks (from Process Step 6)
+7. **Post-Launch Monitoring Plan** — D+1 to D+7 dashboard and adjustment triggers (from Process Step 7)
+8. **Downstream Handoffs** — TC handoff paragraph, one-line CRM status, per-channel asset inventory for marketing coordinator (from Process Step 8)
 
 ## Example Output
 
