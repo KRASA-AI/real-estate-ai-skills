@@ -4,7 +4,7 @@ category: customer-service
 tools: [claude, chatgpt]
 difficulty: beginner
 time_saved: "~25 min/report"
-version: 2.0
+version: 3.0
 last_eval_score: null
 ---
 
@@ -16,20 +16,27 @@ Produce a buyer-ready neighborhood profile that is specific, data-grounded, and 
 
 ## When to Use
 
+**Quick Start — minimum viable run.** Provide the 3 Required Core inputs (neighborhood identifier, buyer profile, priority factors) and the skill ships the full 12-section report skeleton. Sections that depend on the 5 enrichment inputs (data points, agent observations, comparisons, delivery format, agent config) ship with a documented "[DATA GAP — {what's missing}]" placeholder per section rather than substituting agent impression or made-up numbers — see Required Input Section B for the per-item fallback. A buyer's agent can hand a Pass-1 report to a relocation buyer in 10 minutes; subsequent re-runs fill the gaps as the data is pulled.
+
 Use this skill for out-of-area and relocation buyers, for first-time-buyer consultations where neighborhood unfamiliarity is the primary friction, for creating evergreen submarket content for the agent's website (where AEO structure matters), when a buyer asks for a side-by-side comparison of two or three neighborhoods they are considering, and when a seller wants a neighborhood context sheet to attach to their listing (AEO pickup on listing pages). Pairs upstream with `lead-qualification-bant.md` (what the buyer actually prioritizes) and `listing-aeo-optimizer.md` (the LLM-citable structure), and pairs downstream with `email-drafter.md` (the delivery email) and `social-content-calendar-30day.md` (if the report is being repurposed into a neighborhood-spotlight series).
 
 ## Required Input
 
-Provide what you have; the skill produces a defensible report from partial input but flags its confidence band:
+### Section A — Required Core (3 items, report skeleton cannot ship without)
 
 1. **Neighborhood / area identifier** — Neighborhood name + city + state + zip. Subdivision name if applicable. Map bounding box or street boundaries if known.
 2. **Buyer profile (audience)** — Household composition (not ages of children or family structure for FH reasons — use "1-person / 2-person / small household / large household" framing internally), ranked priorities (commute / walkability / outdoor access / work-from-home / total monthly cost / schools-if-relevant / nightlife / access-to-specific-amenity), and specific workplaces or institutions if commute matters.
 3. **Priority factors** — What the buyer told you matters (e.g., "under 35-min drive to downtown," "good bike infrastructure," "dog-friendly"). Use these to focus the report, not to steer.
-4. **Verifiable data points** — Any of: median sale price (past 90 days), median DOM, walk score / transit score / bike score, named schools with current rating + rating-source + rating-date, named parks with size + trail mileage, named transit stops with route + frequency, named retail districts, named employers within commute-radius, crime-stat source (e.g., city.gov/crime, with date range), named development projects (permit or city-council-minutes cited).
-5. **Agent local observations** — First-person insight the agent has from showings, open houses, or personal familiarity. These appear in the "Agent's Read" section and are labeled as observation, never as fact.
-6. **Comparison neighborhoods (optional)** — If buyer is comparing areas, list the other 1–3 areas; output will include a comparison matrix.
-7. **Delivery format** — Email (short), PDF handout (full), website landing page (AEO-optimized), or side-by-side comparison.
-8. **Agent config** — `config.yml` provides brokerage, license numbers, MLS, preferred voice, and standard disclaimer language.
+
+### Section B — Required for Full Report (5 items, each with per-item fallback)
+
+4. **Verifiable data points** — Any of: median sale price (past 90 days), median DOM, walk score / transit score / bike score, named schools with current rating + rating-source + rating-date, named parks with size + trail mileage, named transit stops with route + frequency, named retail districts, named employers within commute-radius, crime-stat source (e.g., city.gov/crime, with date range), named development projects (permit or city-council-minutes cited). *Default if omitted:* every section that depends on a missing data point ships with the placeholder "[DATA GAP — {specific item}, re-run with {source} pulled and dated]" — e.g., "[DATA GAP — Schools section requires GreatSchools rating + retrieval date; re-run with rating-source pulled]." No data fabrication; no adjective-style substitutes.
+5. **Agent local observations** — First-person insight the agent has from showings, open houses, or personal familiarity. These appear in the "Agent's Read" section and are labeled as observation, never as fact. *Default if omitted:* Agent's Read section ships with a one-line placeholder ("Agent's Read pending — re-run with 3–5 observation sentences after first showing in the area") rather than fabricating experience the agent hasn't had.
+6. **Comparison neighborhoods (optional)** — If buyer is comparing areas, list the other 1–3 areas; output will include a comparison matrix. *Default if omitted:* Comparison Matrix section is skipped (this is the one section that ships absent rather than as a data gap, because a single-neighborhood report stands on its own).
+7. **Delivery format** — Email (short), PDF handout (full), website landing page (AEO-optimized), or side-by-side comparison. *Default if omitted:* defaults to PDF handout format (full report); flags the choice at the top so the agent can re-render to a different format on Pass 2.
+8. **Agent config** — `config.yml` provides brokerage, license numbers, MLS, preferred voice, and standard disclaimer language. *Default if omitted:* skill uses generic-brokerage disclaimer language and prompts at the top of the report for license/brokerage insertion before delivery.
+
+**Pass model:** A buyer's agent typically runs Pass 1 (Section A only) during the buyer consultation to anchor the conversation, then layers Section B inputs over the next 24–48 hours as MLS data, school ratings, and crime stats are pulled. A relocation-team workflow typically supplies Section A + Section B simultaneously and ships finished reports.
 
 ## Instructions
 
@@ -103,6 +110,8 @@ You are a senior buyer's-advisory specialist. Your job is to produce a neighborh
 10. **Comparison Matrix** (if applicable) — trade-off-focused.
 11. **AEO-Ready Q&A Block** — 5–8 questions.
 12. **Compliance Sweep + Disclaimer** — pass/flag list + brokerage disclaimer.
+
+**Pass-1 data-gap placeholder convention.** For each section that depends on a Section-B input not yet supplied, write the section heading and then a single bracketed line in this exact form: `[DATA GAP — {specific item needed}; re-run with {source name + retrieval date} pulled]`. Example: `[DATA GAP — GreatSchools ratings for elementary, middle, high serving boundary; re-run with rating-source + retrieval date]`. This convention makes a Pass-1 report immediately scannable for what is missing and what to pull, and prevents data fabrication during the Pass-1 / Pass-2 gap.
 
 ## Example Output
 

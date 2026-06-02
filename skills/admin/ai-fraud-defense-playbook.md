@@ -4,7 +4,7 @@ category: admin
 tools: [claude, chatgpt]
 difficulty: advanced
 time_saved: "~30 min/incident + hours of prevented loss"
-version: 1.1
+version: 2.0
 last_eval_score: null
 ---
 
@@ -26,7 +26,7 @@ Provide what you have; the skill produces a defensible defense package from part
 2. **Transaction snapshot (for KICKOFF / PRE-WIRE / CHANGE-EVENT / INCIDENT)** — Address, list/purchase price, buyer and seller names, listing agent, buyer's agent, brokerage(s), title/escrow company, lender, closing date, funds-transfer date, current status (listed / under contract / cleared to close / funding / post-close).
 3. **The inbound event (for CHANGE-EVENT / INCIDENT)** — The message itself (voicemail transcript, email, text, chat, video link), the channel it arrived on, the sender's stated identity, the specific action requested, the urgency framing, any attachments, any prior legitimate communication this could be spoofing.
 4. **Relationship context** — How the client prefers to be contacted, their typical reply latency, any known vulnerabilities (first-time buyer, senior client, client out-of-country during closing, client who previously fell for a phishing email).
-5. **Counterparty verification anchors** — Known-good phone numbers (not pulled from emails), direct-line numbers for title officer / escrow officer / lender rep / listing agent / buyer's agent, brokerage's fraud-ops mailbox, broker-of-record direct line, state RE commission fraud-reporting contact.
+5. **Counterparty verification anchors** — Known-good phone numbers (not pulled from emails), direct-line numbers for title officer / escrow officer / lender rep / listing agent / buyer's agent, brokerage's fraud-ops mailbox, broker-of-record direct line, state RE commission fraud-reporting contact. If `config.yml` has a `known_good_lines` section, the playbook auto-loads the brokerage's standard direct lines (title / escrow / lender / co-op agent / broker-of-record / brokerage IT / state RE commission fraud line) and only re-prompts the agent for transaction-specific lines (the actual title officer assigned to this deal, the lender rep for this loan). Reduces a per-run friction point that previously required the agent to type the same six numbers on every kickoff.
 6. **Jurisdiction** — State (two-party-consent rules, state RE commission reporting thresholds, state-level AI-impersonation statutes if applicable), MLS (some MLSs now require deepfake-incident reporting), county recorder (for quitclaim / title-theft angle).
 7. **Brokerage AI Use + Fraud Policy (optional)** — If the brokerage has a written wire-fraud or AI-impersonation SOP, paste it. The playbook will cross-check and, where brokerage policy is stricter, follow brokerage.
 8. **Agent config** — `config.yml` provides brokerage, state, license numbers, preferred client-facing language, and the escalation chain.
@@ -58,6 +58,18 @@ You are a senior fraud-operations specialist working inside a real-estate broker
    - Post-close rent-back rent payment routing
    - Commission re-assignment ("pay the referral to this new account")
    For each trigger, tag it with likely attack vectors: voice clone, deepfake video, AI-written spoofed email, AI-generated doc (fake ID, fake wire confirmation, fake lender statement), chat/SMS impersonation, social-engineered helpdesk reset.
+
+   **Threat-Map Dollar-Weight column.** Tag each trigger with the loss-anchor benchmark for its attack vector class, so the threat map prioritizes by *expected loss* rather than equal weighting. Use the FBI IC3 2025 + Entrust Identity Fraud Report 2025 anchors below; replace with brokerage-specific actuals if available:
+
+   | Attack vector class | Loss anchor | Source |
+   |---|---|---|
+   | Business Email Compromise (wire-fraud, real-estate sector) | **$275M annual sector loss** (FBI IC3 2025); BEC overall **$3.04B annual** (#2 cybercrime category); per-incident median **$50K–$200K** for residential closings, escalating into mid-six-figures for commercial | FBI IC3 Internet Crime Report 2025 |
+   | Voice-clone (live-call impersonation) | Per-incident median **$43K**; cluster of incidents in the **72 hours before wire**; first-named live-call-detection vendor category emergent May 2026 (Diopter AI) | FBI IC3 2025 + Entrust Identity Fraud Report 2025 |
+   | Deepfake video (synthetic-presenter "title officer," fake closing agent on Zoom) | Sub-$1M total recorded sector loss in 2025 (small N), but **per-incident loss high** when it lands; trajectory steeply upward in Entrust 2025 longitudinal series | Entrust Identity Fraud Report 2025 |
+   | AI-generated identity document (buyer pre-qual, POA spoofing) | Embedded inside BEC + sector reporting; flagged as **fastest-growing AI fraud vector** in Entrust 2025 (>3,000% YoY in covered domains) | Entrust Identity Fraud Report 2025 |
+   | Helpdesk / SMS impersonation (substitute notary, MLS admin spoof) | Embedded inside the FBI BEC total; methodology-relevant because it bypasses the email channel entirely and lands on whichever channel the agent treats as trusted | FBI IC3 2025 |
+
+   **Triage rule:** if two triggers compete for verification capacity inside the 72-hour pre-wire window, the one with the higher loss anchor escalates first. A wire-instruction-change trigger (BEC, $50K–$200K typical) outranks a routing change on inspection or appraisal (low expected loss). The dollar-weight column is the source of truth for that decision.
 
 3. **Assign each trigger a verification tier on a four-tier ladder.** The ladder exists because verification cost is not free; apply it where it pays off. Use:
    - **L0 — Pass-through.** Communication is routine, no money or routing changes, counterparty is previously verified, channel is the previously verified channel. Proceed normally; log only.
@@ -100,6 +112,25 @@ You are a senior fraud-operations specialist working inside a real-estate broker
    - **T+24:00 — Post-incident review.** Run the hotwash; update the brokerage SOP; notify adjacent transactions where the same attacker may be active.
 
 10. **Map compliance and data-handling overlay.** Every output checks against: NAR Code of Ethics Article 1 (duty to protect/promote client interest), state RE advertising/representation rules, Gramm-Leach-Bliley Act data-handling for any financial information collected in the course of verification, FTC Safeguards Rule (brokerage-as-covered-entity), state two-party-consent recording rules where the callback is recorded (currently: CA, FL, IL, MD, MA, MT, NV, NH, PA, WA, plus others with recording restrictions). Where the recording is made, get consent on the line before substantive questions. Where jurisdictional ambiguity exists, say so and route to broker-of-record.
+
+   **State-Specific Recording-Consent Scripts (ready-to-paste).** For an L1 callback in a two-party-consent state, open with the state-appropriate disclosure line below — recorded before substantive questions, on the line, so the recording itself captures the consent. Statute cites are for the SOP file; the script is what the agent says:
+
+   | State | Opening line | Statute |
+   |---|---|---|
+   | **CA** | "Before we begin, I'm recording this call for fraud-verification purposes. Is that okay with you?" | Cal. Penal Code § 632 |
+   | **FL** | "I'd like to let you know I'm recording this call for fraud-verification purposes — please confirm you're okay with that before we continue." | Fla. Stat. § 934.03 |
+   | **IL** | "I'm going to record this conversation for fraud-verification purposes. Do I have your consent to record?" | 720 ILCS 5/14 (Eavesdropping Act) |
+   | **MD** | "This call is being recorded for fraud-verification purposes. May I have your consent to continue the recording?" | Md. Code Cts. & Jud. Proc. § 10-402 |
+   | **MA** | "I'm letting you know this call is being recorded for fraud-verification purposes — is that okay with you?" | Mass. Gen. Laws ch. 272 § 99 |
+   | **MT** | "I'm recording this call for fraud-verification purposes. Do you consent to the recording?" | Mont. Code Ann. § 45-8-213 |
+   | **NV** | "This call is being recorded for fraud-verification purposes. Please confirm you consent to recording." | Nev. Rev. Stat. § 200.620 |
+   | **NH** | "I'm recording this conversation for fraud-verification purposes. Do you consent?" | N.H. Rev. Stat. § 570-A:2 |
+   | **PA** | "I'm recording this call for fraud-verification purposes. Do I have your consent to record?" | 18 Pa. C.S. § 5704 (Wiretap Act) |
+   | **WA** | "This call is being recorded for fraud-verification purposes. Do you consent to being recorded?" | Wash. Rev. Code § 9.73.030 |
+
+   **One-party-consent states (all others):** disclosure is courteous-but-not-required if the agent is a party to the call; the SOP recommendation is still to open with a brief recording-purpose statement so the recording is admissible across forums and so the counterparty understands the verification posture is procedural, not adversarial.
+
+   **If consent is refused:** the call continues *without* recording, but the L1 callback now also triggers an L2 escalation note — a counterparty who refuses recording on a verification call is, by policy, treated at L2 verification minimum until the L2 challenge passes. Document the refusal and the L2 escalation in the verification log.
 
 **Critical rules:**
 
