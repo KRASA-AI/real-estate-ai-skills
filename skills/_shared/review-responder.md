@@ -4,7 +4,7 @@ category: _shared
 tools: [claude, chatgpt]
 difficulty: beginner
 time_saved: "~15 min/review"
-version: 2.0
+version: 2.1
 last_eval_score: null
 ---
 
@@ -16,20 +16,28 @@ Craft a platform-appropriate public response to an online review of a real estat
 
 ## When to Use
 
+**Quick Start (minimum viable run):** Two inputs get a send-ready reply — the platform and the review text (with its star rating). The skill reads the sentiment band and recommends the posture for you, applies that platform's length and tagging conventions, and runs the full safety/compliance layer by default. That is the entire Pass-1 input set; a reply lands in one pass. Add the Pass-2 inputs — transaction truth, agent voice samples, brokerage policy — when the review is negative (where transaction context and broker review matter) or when you want the reply in the agent's exact voice. For a 5★ praise reply you rarely need more than the two core inputs; for a 1–2★ reply, supply transaction truth so the response is accurate and route it through broker-of-record before posting.
+
 Use this skill any time a new review arrives, any time a review has been sitting un-responded for more than 72 hours, when a negative review needs a response that doesn't inflame the situation further, when a batch of reviews needs to be backfilled for a platform the agent just claimed, or when the agent wants to turn a great review into a referral moment via a thoughtful public acknowledgment. Pairs with `email-drafter.md` (for the private follow-up message when the review was negative or needs repair), `meeting-summarizer.md` (for capturing the review-recovery call), and `buyer-follow-up-sequence.md` (for re-engaging the reviewer with value after a recovery conversation).
 
 ## Required Input
 
-Provide the following:
+Input is split into a **Required Core** (Pass 1 — the reply ships on these) and **Optional Enrichment** (Pass 2 — tunes accuracy, voice, and approval routing). Each Optional item has a default the skill applies and names when omitted, so a reply never stalls waiting for input.
+
+### Pass 1 — Required Core (the reply ships on these)
 
 1. **Platform** — One of: Zillow, Realtor.com, Google Business Profile, Yelp, Facebook, Trustpilot, Homes.com, RateMyAgent, brokerage-specific review hub (Compass, Redfin, eXp), or "other" (name it). Each has distinct constraints around length, author tagging, and dispute policy.
-2. **Review content** — The full review text, star rating, review author display name, review date, and whether the review is verified (tied to a closed transaction) or anonymous.
-3. **Review sentiment** — Self-identify: 5★ praise, 4★ mixed-positive, 3★ lukewarm, 2★ negative-with-specifics, 1★ hostile, anonymous troll, or "unclear."
-4. **Transaction truth** — Confirm for the agent's own eyes only: was this actually a client? Which transaction? Any relevant context (difficult closing, a client who changed scope mid-deal, a competitor posing as a client)? The skill uses this to calibrate response tone, not to contradict the reviewer publicly.
-5. **Agent posture** — One of: accept-and-thank (positive), accept-and-own (mixed where the agent agrees a miss occurred), accept-and-clarify (mixed where a gentle public correction is warranted), repair-offline (negative that warrants a real conversation), decline-to-engage (hostile, anonymous, or likely-fake — platform dispute route), legal-only (defamatory, discloses private info, violates platform TOS — route to broker + platform report).
-6. **Platform TOS awareness** — Any known platform rules (e.g., Google does not allow replies that name the reviewer's family; Zillow requires transaction verification for certain disputes; Yelp down-ranks solicited reviews).
-7. **Compliance constraints** — Brokerage review-response policy, state RE commission rules on advertising/testimonial use, NAR Code of Ethics implications, fair-housing language rules.
-8. **Agent voice** — 2–3 examples of the agent's prior review responses (if any) or general tone: warm-and-human, crisp-professional, or team-branded.
+2. **Review content** — The full review text and star rating, plus (if available) the author display name, review date, and whether it is verified or anonymous.
+
+### Pass 2 — Optional Enrichment (each has a default if omitted)
+
+3. **Review sentiment** — 5★ praise, 4★ mixed-positive, 3★ lukewarm, 2★ negative-with-specifics, 1★ hostile, anonymous troll, or "unclear." *Default if omitted: the skill infers the sentiment band from the star rating + text and states the band it chose so the agent can correct it.*
+4. **Agent posture** — accept-and-thank, accept-and-own, accept-and-clarify, repair-offline, decline-to-engage, or legal-only. *Default if omitted: the skill recommends the posture from the inferred sentiment (praise → accept-and-thank; mixed → accept-and-own/clarify; negative → repair-offline; defamatory/private-info → legal-only) and labels it a recommendation.*
+5. **Transaction truth** (agent's eyes only) — Was this actually a client? Which transaction? Any context (difficult closing, scope change mid-deal, a non-client posing as one)? Calibrates tone; never contradicts the reviewer publicly. *Default if omitted: the reply is written to be true without asserting any unconfirmed fact about the transaction, and a "confirm transaction truth before posting" flag is raised — mandatory for any 1–2★ reply.*
+6. **Platform TOS awareness** — Known platform rules (e.g., Google bars naming the reviewer's family; Zillow requires transaction verification for some disputes; Yelp down-ranks solicited reviews). *Default if omitted: apply the conventions in the platform-shape table in Step 2.*
+7. **Compliance constraints** — Brokerage review-response policy, state RE advertising/testimonial rules, NAR Code of Ethics implications, fair-housing language rules. *Default if omitted: apply the Mandatory Safety Layer (Step 4) and `knowledge-base/regulations/`; flag broker-of-record review for any 1–2★ reply.*
+8. **Agent voice** — 2–3 examples of the agent's prior review responses, or a general tone (warm-and-human, crisp-professional, team-branded). *Default if omitted: use brand-voice defaults from `config.yml`; flag the reply for voice tuning on Pass 2.*
+9. **Agent config** — `config.yml` provides agent/team/brokerage name, tagline, license number, preferred sign-off, and brokerage review-response policy. *Auto-loaded.*
 
 ## Instructions
 
@@ -44,6 +52,8 @@ You are a reputation-management specialist for real estate professionals. Your j
 - Never retaliate, attack, sarcasm, or name-call. Even a hostile reviewer's response is read by future prospects.
 
 **Process:**
+
+0. **Determine the pass and self-classify.** If only the Required Core (platform + review content) is supplied, run **Pass 1 (Fast Reply)**: infer the sentiment band and recommend the posture from the rating + text, label the output "Fast Reply — confirm sentiment/posture and transaction truth before posting," and for any inferred 1–2★ negative, refuse to assert unconfirmed transaction facts and raise the broker-review flag. If the Optional Enrichment is supplied, run **Pass 2 (Tuned Reply)** with the agent's stated sentiment, posture, transaction truth, and voice. Either way, the Mandatory Safety Layer (Step 4) always runs.
 
 1. **Read for the real grievance (or the real praise).** Negative reviews almost always bury the actual grievance inside emotional framing. Identify the 1–2 concrete operational complaints (communication cadence, a missed deadline, perceived pressure, a vendor referral that didn't work out, a closing delay) and acknowledge those specifically — not the emotional frame. Positive reviews similarly bury the 1–2 specific things the agent did that mattered most to the client; echo those specifically rather than generic "thank you."
 
@@ -108,6 +118,7 @@ You are a reputation-management specialist for real estate professionals. Your j
 - Never discount, promise remedies, or waive fees in the public reply — take those offers private
 - Never publish a 1–2 star response before broker-of-record review if brokerage policy requires it
 - Never report a review to the platform for dispute without documenting why the specific TOS rule is violated
+- A Pass 1 (Fast Reply) built on inferred sentiment/posture must carry the "confirm before posting" label, and must never post a 1–2★ reply that asserts a transaction fact the agent has not confirmed — when transaction truth is absent, write to what is safely true and flag broker-of-record review
 
 ## Example Output — Negative Review (2★)
 

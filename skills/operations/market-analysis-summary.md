@@ -4,7 +4,7 @@ category: operations
 tools: [claude, chatgpt]
 difficulty: beginner
 time_saved: "~15 min/use"
-version: 3.0
+version: 4.0
 last_eval_score: null
 ---
 
@@ -16,6 +16,8 @@ Produce a concise, data-first market snapshot — weekly, monthly, or on-demand 
 
 ## When to Use
 
+**Quick Start (minimum viable run):** Three things ship a usable market snapshot — geographic scope, reporting period, and whatever metrics you can paste from MLS right now (even just closed count, median price, and DOM). That is the Pass 1 Required Core. The skill produces the snapshot header, key-metrics table, MOI diagnosis, headline stories, and a draft "What This Means" closer in one pass, using sensible defaults for everything you did not specify (audience → past-client newsletter; comparison period → prior month + year-ago; delivery format → email) and flagging each default so you can override. Add the Pass 2 enrichment inputs — specific audience, exact comparison periods, delivery format, narrative angle, macro context — when you want the copy tuned to a named reader. A buyer's or seller's agent can pull the three core numbers in a consultation and hand the client a snapshot in the meeting, then refine for the newsletter later.
+
 Use this skill to produce a weekly or monthly market update for past clients and sphere, to brief a buyer or seller during a qualification or listing appointment, to create a social post or newsletter segment answering "how's the market?", to provide context in a pricing conversation before running a full CMA, or when a specific client asks for an update on their neighborhood or price range. If you need a full property-specific pricing presentation, use `cma-presentation-generator.md` instead. If you need a buyer-facing area overview with schools, amenities, transit, and lifestyle, use `neighborhood-report-generator.md` instead. Pairs with `cma-presentation-generator.md` (this skill's MOI band feeds directly into the CMA's submarket diagnosis), `seller-intent-scorer.md` (a softening market raises the bar on seller-intent confidence), `buyer-follow-up-sequence.md` (the monthly-update touch in the sequence is best produced by this skill), `listing-aeo-optimizer.md` (the market-report Q&A block on a market-report page is best populated by this skill's headline stories), and `neighborhood-report-generator.md` (the market-pulse paragraph in the neighborhood report is this skill's output).
 
 ## Distinction from Related Skills
@@ -26,18 +28,23 @@ Use this skill to produce a weekly or monthly market update for past clients and
 
 ## Required Input
 
-Provide the following:
+The input is split into a **Required Core** (Pass 1 — the snapshot ships on these alone) and **Optional Enrichment** (Pass 2 — tunes the copy to a named reader). Every Optional item has a default the skill applies and flags when the item is omitted, so a partial run never stalls.
+
+### Pass 1 — Required Core (snapshot ships on these)
 
 1. **Geographic scope** — One neighborhood, ZIP code, MLS area, city, or a custom-defined farm area. If multiple, name each. State the formal boundary (street bounds or zip proxy, stated explicitly) where relevant.
-2. **Segment filters** — Price band (e.g., $600K–$1.2M), property type (SFR, condo, townhome, multi-family, lot/land), bed/bath minimum, square-footage minimum, year-built band if relevant.
-3. **Reporting period** — Weekly, monthly, quarterly, year-over-year, or custom date range. State explicitly: e.g., "March 1–31, 2026."
-4. **Comparison period** — What to compare against (prior month, same month last year, trailing 6-month average, pre-rate-hike baseline). Two comparisons are allowed (typical: prior month + year-ago).
-5. **Key metrics available** — Which stats the agent can pull from MLS or market report: active count, new listings, pending, closed, median sale price, average sale price, $/sqft, days on market (DOM), CDOM if distinct, list-to-sale ratio, months of inventory, price reductions, % over-asking, % with price cuts, multiple-offer frequency. The skill works on partial input — flag what's missing.
-6. **Audience** — Who will read this: past clients / newsletter list, a specific buyer, a specific seller, social followers, a broker, a referral partner, an institutional or relocation client.
-7. **Delivery format** — Email copy, newsletter section, social caption, 1-pager PDF content, talking-point brief for a live conversation, or a market-report-page Q&A block (handoff to `listing-aeo-optimizer.md`).
-8. **Narrative angle (optional)** — If the agent wants to emphasize a specific storyline ("inventory finally easing," "luxury segment slowing," "first-time-buyer window," "rate-window opportunity").
-9. **Macro context (optional)** — Current 30-year mortgage rate, recent Fed move, local job-market shock or boom, seasonal context (peak spring, holiday slowdown). The skill applies macro context as flavoring, not as core data.
-10. **Agent config** — `config.yml` provides agent name, brokerage, state, license #, signature format, brand-voice defaults, MLS attribution conventions.
+2. **Reporting period** — Weekly, monthly, quarterly, year-over-year, or custom date range. State explicitly: e.g., "March 1–31, 2026."
+3. **Key metrics available** — Whatever stats the agent can paste from MLS or a market report right now: active count, new listings, pending, closed, median sale price, average sale price, $/sqft, days on market (DOM), CDOM if distinct, list-to-sale ratio, months of inventory, price reductions, % over-asking, % with price cuts, multiple-offer frequency. The skill works on partial input — even closed count + median price + DOM is enough for a Pass 1 snapshot. Flag what's missing and name the one or two metrics that would most sharpen the read.
+
+### Pass 2 — Optional Enrichment (each item has a default if omitted)
+
+4. **Segment filters** — Price band (e.g., $600K–$1.2M), property type (SFR, condo, townhome, multi-family, lot/land), bed/bath minimum, square-footage minimum, year-built band. *Default if omitted: all property types in the named geography, no price band; the snapshot states the unfiltered scope explicitly.*
+5. **Comparison period** — What to compare against (prior month, same month last year, trailing 6-month average, pre-rate-hike baseline; two comparisons allowed). *Default if omitted: prior month (MoM) + same month last year (YoY).*
+6. **Audience** — Past clients / newsletter list, a specific buyer, a specific seller, social followers, a broker, a referral partner, an institutional or relocation client. *Default if omitted: past-client / sphere newsletter; the closer is written for that reader and flagged for re-aim.*
+7. **Delivery format** — Email copy, newsletter section, social caption, 1-pager PDF content, talking-point brief for a live conversation, or a market-report-page Q&A block (handoff to `listing-aeo-optimizer.md`). *Default if omitted: email copy (150–250 words).*
+8. **Narrative angle** — A specific storyline to emphasize ("inventory finally easing," "luxury segment slowing," "first-time-buyer window," "rate-window opportunity"). *Default if omitted: let the data pick the angle — the largest material move drives the lead headline.*
+9. **Macro context** — Current 30-year mortgage rate, recent Fed move, local job-market shock or boom, seasonal context (peak spring, holiday slowdown). Applied as flavoring, not core data. *Default if omitted: pull seasonality and rate-band context from `knowledge-base/industry-overview.md`; mark the macro line "general context — confirm current rate."*
+10. **Agent config** — `config.yml` provides agent name, brokerage, state, license #, signature format, brand-voice defaults, MLS attribution conventions, and service area. The skill auto-loads these; a Pass 1 run uses the config service area as the default geographic scope if the agent gives only "my market."
 
 ## Instructions
 
@@ -54,6 +61,8 @@ The two failure modes you are working against: (a) the **stat-dump** — a table
 - Confirm sample size. If the segment / period combination produced fewer than 10 closed sales, mark every metric in the output with a small-sample flag and tighten language accordingly. Below 5 closed sales, this skill produces a "Sample-Size Caveat Brief" rather than a market summary.
 
 **Process (run in order — earlier steps set constraints for later ones):**
+
+0. **Determine the pass and apply defaults.** If only the Required Core (geographic scope + period + available metrics) is supplied, run **Pass 1 (Fast Snapshot)**: apply the per-item default for every omitted Optional Enrichment input, label the output "Fast Snapshot — refine on Pass 2," and list — at the top of the output — exactly which defaults were applied (audience, comparison period, format, segment scope, macro source) so the agent can see what to override. If the full input set is supplied, run **Pass 2 (Tuned Report)** at full depth. A re-run that adds only Pass 2 inputs against an existing Pass 1 snapshot updates the audience-specific closer, the delivery-formatted output, and any comparison-period stats that change — it does not re-pull the core metrics unless the period changed.
 
 1. **Compute or confirm the core metrics.** Depending on what the agent provides, derive or verify:
 
@@ -126,6 +135,7 @@ The two failure modes you are working against: (a) the **stat-dump** — a table
 
 9. **Produce handoff artifacts.** Ship the following, labeled and in order:
 
+   - Pass label (Fast Snapshot or Tuned Report) — and, for Pass 1, the one-line list of defaults applied so the agent knows what Pass 2 will refine.
    - Market Snapshot Header (geography, segment filters, period, "as of" date, sample size).
    - Key Metrics Table (current vs. comparison period, % change column, material-move flag column).
    - Market Diagnosis (one-sentence band + direction).
@@ -157,6 +167,7 @@ The two failure modes you are working against: (a) the **stat-dump** — a table
 - If sample size is small (< 10 closed sales in the segment / period), explicitly note the limitation. Below 5, switch to the Sample-Size Caveat Brief format.
 - Never write a market commentary that translates a soft market into a "shift" without naming the consequence.
 - Never embed wire instructions, closing-agent direct lines, or title-company routing in any market commentary. (Crosses with `ai-fraud-defense-playbook.md` — public market content is an attack-surface for vendor-impersonation.)
+- A Pass 1 (Fast Snapshot) output must state which defaults it applied and carry the "refine on Pass 2" label, so a snapshot built on default audience/format is never mistaken for copy tuned to a named reader before it goes into a client-facing channel.
 
 ## Example Output (Email to past clients, full segment)
 

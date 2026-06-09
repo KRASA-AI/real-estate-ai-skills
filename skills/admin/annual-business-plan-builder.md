@@ -4,7 +4,7 @@ category: admin
 tools: [claude, chatgpt]
 difficulty: intermediate
 time_saved: "~4 hrs/year"
-version: 2.0
+version: 2.1
 last_eval_score: null
 ---
 
@@ -25,7 +25,9 @@ The agent runs Pass 1 immediately and Pass 2 within the same week. Both passes a
 
 ## When to Use
 
-Run this skill at the start of the year, at the start of a new quarter when the plan needs to be re-based after real results, after a major personal life event (marriage, new child, team move) that changes the earnings floor, when joining a new brokerage (new splits reshape the math), or whenever the agent says "I don't know what I'm supposed to be doing this week." Pairs with `30-day-social-content-calendar.md` (which populates the marketing tactics), `buyer-follow-up-sequence.md` and `seller-intent-scorer.md` (which operationalize the lead-gen activities), and `market-analysis-summary.md` (which supplies the market-pulse inputs). Re-run every quarter with updated actuals.
+**Quick Start (minimum viable run):** Four numbers get you a full strategic plan — prior-year GCI, prior-year transaction count, goal GCI, and your top three lead sources. That is the entire Pass 1 input set; the skill produces the 1-3-5 plan, lead-source quotas, the quarterly scoreboard, and the printable weekly scorecard in one pass (5–10 minutes), holding only the Financial Floor for Pass 2. You do not need to assemble personal financials before getting a usable plan. If `config.yml` already stores prior-year actuals, brokerage split, and market averages, even those four numbers are pre-filled and the run is closer to one-click.
+
+Run this skill at the start of the year, at the start of a new quarter when the plan needs to be re-based after real results, after a major personal life event (marriage, new child, team move) that changes the earnings floor, when joining a new brokerage (new splits reshape the math), or whenever the agent says "I don't know what I'm supposed to be doing this week." Pairs with `social-content-calendar-30day.md` (which populates the marketing tactics), `buyer-follow-up-sequence.md` and `seller-intent-scorer.md` (which operationalize the lead-gen activities), and `market-analysis-summary.md` (which supplies the market-pulse inputs). The Pass 1 / Pass 2 input pattern this skill pioneered now also runs in `social-content-calendar-30day.md`, `agent-discoverability-audit.md`, `neighborhood-report-generator.md`, and `pre-launch-listing-audit.md` — a Pass-1 plan from this skill hands clean lead-gen and marketing targets to those companions without re-entering data. Re-run every quarter with updated actuals.
 
 ## Required Input
 
@@ -51,8 +53,9 @@ Provide these blocks once the Pass 1 plan has been read and the agent is ready t
 You are a real estate business coach and planner. Your job is to produce a numerically honest plan — not a motivational document — that the agent can check weekly for the next 12 months.
 
 **Before you start:**
-- Load `config.yml` for brokerage split schedule, market averages, and any team-structure context
-- Reference `knowledge-base/best-practices/` for local market norms (commission rate, average sale price, typical lead-source mix)
+- Load `config.yml` and auto-fill every value it carries so the agent is never re-prompted for data the brokerage already knows: brokerage split schedule (cap, post-cap rate, any team-lead override), service-area market averages (average sale price, typical commission rate per side, MOI band), team-structure context, and — if `config.yml.prior_year` is populated — last year's GCI, transaction count, and lead-source split. Only prompt the agent for what is genuinely missing after the config pass. State which inputs were drawn from config vs. supplied by the agent, so the agent can correct a stale config value.
+- Reference `knowledge-base/best-practices/` for local market norms (commission rate, average sale price, typical lead-source mix) only where `config.yml` is silent.
+- Personalize the conversion anchors and the "what this looks like on a Tuesday" lines to the agent's service area and price band from config — a $2M coastal farm and a $300K first-time-buyer farm produce very different weekly activity counts from the same GCI goal.
 - Do not flatter the prior year. Do not flatter the goal. Work the math both ways and tell the agent if the plan is off.
 
 **Process:**

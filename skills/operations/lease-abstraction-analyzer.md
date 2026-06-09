@@ -4,7 +4,7 @@ category: operations
 tools: [claude, chatgpt]
 difficulty: intermediate
 time_saved: "~45 min/lease"
-version: 3.0
+version: 3.1
 last_eval_score: 8.80
 ---
 
@@ -16,19 +16,26 @@ Turn a residential or commercial lease (PDF, scan, or pasted text) into a clean 
 
 ## When to Use
 
+**Quick Start (minimum viable run):** Two inputs start an abstract — the lease document and the lease family (residential or commercial). The skill detects the rest. A **residential** lease takes the fast path: deal record, signature/exhibit audit, the SNDA-light exposure check, and the anomaly triage — no empty CAM/NNN table, no percentage-rent math, no operating-expense reconciliation (those sections are skipped entirely for residential, not left blank). A **commercial** lease takes the full path with the CAM/NNN reconciliation and the operating-expense apparatus. Add the optional inputs (review purpose, representation side, rent-roll line, reference standard) to sharpen which anomalies rise to Blocking and to tune the downstream handoff; without them the skill defaults review purpose to "general read," representation side to "buyer/owner of the leased property" (the most protective posture), and produces the abstract plus a neutral anomaly triage. You never have to specify the full input block to get a usable abstract.
+
 Use this skill when (a) a lease document needs to be summarized for a renewal negotiation, (b) you are abstracting a rent roll for an investment-sale package, (c) the buyer of an owner-occupied building has just received the existing tenant lease and needs to know what they are inheriting, (d) you are preparing an estoppel response or a due-diligence file, or (e) a tenant or landlord client has asked for a plain-language read of what their lease actually says. The skill complements `purchase-agreement-intake.md` (which handles purchase contracts) and feeds `transaction-coordinator-brief.md` when an investment sale closes with leases in place.
 
 ## Required Input
 
-Provide any of the following — the skill prefers the fully-executed lease but will still produce useful output with partial information:
+The input is split into a **Required Core** (the abstract runs on these two) and **Optional Sharpeners** (each with a default the skill applies and names when omitted). The skill prefers the fully-executed lease but produces a useful abstract from the core alone.
 
-1. **Lease document** — Full executed lease (PDF text, OCR output, or pasted text). Amendments, side letters, riders, and guaranties should be concatenated in signed order
-2. **Lease family** — Residential (single-family / multi-family / SFR-portfolio), commercial-office (full-service / modified-gross / industrial-gross), commercial-retail (NNN / percentage / ground), commercial-industrial (NNN / absolute-net), or mixed-use. Family drives which abstraction template applies and what reconciliation math is required
-3. **Review purpose** — One of: due diligence on acquisition, renewal negotiation, estoppel response, rent-roll abstraction for an investment package, compliance audit, dispute prep
-4. **Representation side** — Landlord, tenant, lender, or buyer of the leased property. Drives which anomaly flags rise to "Blocking"
-5. **Rent roll cross-reference** (optional) — If abstracting from a rent roll, provide the rent-roll line for the suite so the abstract can be reconciled against the rent-roll fields
-6. **Reference standard** (optional) — A baseline form (BOMA full-service form, AIR-CRE NNN, brokerage's standard residential lease) lets the skill flag deviations precisely
-7. **Agent config** — `config.yml` provides brokerage state, market conventions, and notification preferences
+### Required Core (the abstract runs on these)
+
+1. **Lease document** — Full executed lease (PDF text, OCR output, or pasted text). Amendments, side letters, riders, and guaranties should be concatenated in signed order.
+2. **Lease family** — Residential (single-family / multi-family / SFR-portfolio), commercial-office (full-service / modified-gross / industrial-gross), commercial-retail (NNN / percentage / ground), commercial-industrial (NNN / absolute-net), or mixed-use. Family selects the abstraction template and the reconciliation math, and decides fast-path (residential) vs. full-path (commercial). *If omitted, infer the family from the document's rent structure and state it explicitly at the top of the abstract for the agent to confirm.*
+
+### Optional Sharpeners (each has a default if omitted)
+
+3. **Review purpose** — Due diligence on acquisition, renewal negotiation, estoppel response, rent-roll abstraction for an investment package, compliance audit, or dispute prep. Drives which downstream handoff is produced. *Default if omitted: "general read" — the skill produces the abstract + anomaly triage and skips the purpose-specific handoff (negotiation playbook / estoppel draft), noting it can be generated on request.*
+4. **Representation side** — Landlord, tenant, lender, or buyer of the leased property. Drives which anomaly flags rise to "Blocking." *Default if omitted: buyer/owner-of-the-leased-property — the most protective posture, which surfaces the widest Blocking set; the abstract states the assumed side so a landlord- or tenant-side user can re-triage.*
+5. **Rent-roll cross-reference** — If abstracting from a rent roll, the rent-roll line for the suite, so the abstract reconciles against the rent-roll fields. *Default if omitted: produce the rent-roll line from the lease alone; no cross-check performed.*
+6. **Reference standard** — A baseline form (BOMA full-service, AIR-CRE NNN, brokerage standard residential) lets the skill flag deviations precisely. *Default if omitted: flag deviations against the market conventions in the Market & Jurisdiction Context block rather than a named form.*
+7. **Agent config** — `config.yml` provides brokerage state, market conventions, and notification preferences. *Auto-loaded; sets the jurisdiction matrix used for market footnotes.*
 
 ## Instructions
 
@@ -75,7 +82,7 @@ If the brokerage state in `config.yml` is not one of the six residential matrix 
 
 **Process:**
 
-1. **Classify the lease family and template.** Identify residential vs. commercial; within commercial, identify the rent structure (full-service / modified-gross / NNN / absolute-net / percentage / ground). Record the lease form (AIR-CRE 2017, BOMA Standard Office Lease, brokerage custom, state-association residential) and the execution date at the top of the abstract. The lease family determines which sections of the output are populated; do not generate an empty CAM table for a residential lease.
+1. **Classify the lease family and select the path.** Identify residential vs. commercial; within commercial, identify the rent structure (full-service / modified-gross / NNN / absolute-net / percentage / ground). Record the lease form (AIR-CRE 2017, BOMA Standard Office Lease, brokerage custom, state-association residential) and the execution date at the top of the abstract. The family selects the path: a **residential** lease runs the fast path — deal record, signature/exhibit audit, SNDA-light exposure check, anomaly triage, executive abstract, rent-roll line — and **omits** the CAM/NNN reconciliation (Step 3) and the percentage-rent / operating-expense fields entirely (those sections are not rendered, not rendered-empty). A **commercial** lease runs the full path including Step 3. If the family was inferred rather than supplied, state the inference and the path chosen at the top of the abstract for the agent to confirm before relying on it.
 
 2. **Extract the deal record with paragraph citations.** For every field, capture the value and the paragraph/section reference so anyone can verify in under ten seconds. Do not paraphrase economic terms — record the exact lease language. Lease-family-specific fields:
 
