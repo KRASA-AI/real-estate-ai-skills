@@ -4,6 +4,8 @@
 
 The real estate industry is experiencing rapid AI adoption as businesses look to reduce administrative overhead, improve customer response times, and standardize quality across their operations.
 
+**The adoption-vs-impact gap.** Adoption is now near-universal, but business impact is not. Industry surveys in mid-2026 found roughly 68% of agents use AI daily or weekly, yet only about 17% report it has a *significant* positive impact on their business — and ~75% still use AI through a plain chat window (most often a free-tier ChatGPT, Gemini, or Claude). The bottleneck is workflow structure, not tool access, which is exactly what this repo's skills provide. See [`best-practices/ai-adoption-impact-gap.md`](best-practices/ai-adoption-impact-gap.md) for the full data anchor.
+
 ## Common Pain Points
 
 Real Estate businesses typically struggle with:

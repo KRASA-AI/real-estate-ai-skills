@@ -4,11 +4,15 @@ category: sales
 tools: [claude, chatgpt]
 difficulty: beginner
 time_saved: "~15 min/listing"
-version: 3.0
-last_eval_score: 8.90
+version: 4.0
+last_eval_score: 8.80
 ---
 
 # Listing Description Writer
+
+## Quick Start
+
+**Minimum viable run (2 inputs):** give (1) **property basics** (address, beds/baths, sqft, year built, property type) and (2) the **list price** (for tone calibration). That is enough for a **Pass 1 Fast Draft** — a complete, fair-housing-compliant MLS description, an 8-words-or-fewer headline, and the key-feature bullets. Everything else in Required Input is **Pass 2 Enrichment** with a stated default (no condition/upgrade notes → describe only the basics and flag where specifics would lift the copy; no target buyer → write neutral property-first copy, which is the fair-housing-safe default anyway; no MLS character cap → default to a 4,000-character CRMLS-style ceiling). So an agent with nothing but the listing sheet still ships usable copy; Pass 2 sharpens it with upgrades, neighborhood, and platform variants. Note: target-buyer input is used only to calibrate *tone*, never to write occupant-framing copy (see Step 4).
 
 ## Purpose
 
@@ -20,16 +24,21 @@ Use this skill when preparing a new listing for MLS entry, refreshing a stale li
 
 ## Required Input
 
-Provide the following:
+The skill runs in two passes. **Pass 1 = Fast Draft** (Required Core — produces complete, compliant MLS copy). **Pass 2 = Enrichment** (sharpens with upgrades, outdoor/lot, neighborhood, agent must-mentions, and platform variants). Each Pass 2 item carries a **Default if omitted**.
+
+### Pass 1 — Required Core (2 inputs)
 
 1. **Property basics** — Address, beds/baths, sqft, lot size, year built, property type (single-family, condo, townhome, multi-family)
-2. **Condition & upgrades** — Recent renovations, notable features, appliance details, flooring, fixtures, smart home tech
-3. **Outdoor & lot** — Yard, landscaping, pool, deck/patio, garage, parking, views
-4. **Neighborhood highlights** — School district, walkability, nearby amenities, commute info, community features (HOA, gated, etc.)
-5. **Target buyer** (optional) — Who is most likely to buy this (young family, downsizer, investor, first-time buyer, luxury buyer)
-6. **Listing price** — For tone calibration (luxury vs. starter vs. mid-market)
-7. **MLS platform** (optional) — Character limit if applicable (many MLS systems cap at 1,000–4,000 characters)
-8. **Agent notes** — Any "must mention" features, seller's favorite aspects, showing instructions, or unique selling points
+2. **Listing price** — For tone calibration (luxury vs. starter vs. mid-market)
+
+### Pass 2 — Enrichment (each has a default)
+
+3. **Condition & upgrades** — Recent renovations, notable features, appliance details, flooring, fixtures, smart home tech. *Default if omitted:* describe only what the basics support and insert a `[ADD: specific upgrades — e.g., renovation years, appliance brands]` prompt where specifics would most lift the copy.
+4. **Outdoor & lot** — Yard, landscaping, pool, deck/patio, garage, parking, views. *Default if omitted:* mention lot size only; flag outdoor detail as a quick win.
+5. **Neighborhood highlights** — School district, walkability, nearby amenities, commute info, community features (HOA, gated, etc.). *Default if omitted:* name the neighborhood/city from the address and add `[ADD: school district + walkability]`; never invent amenities.
+6. **Target buyer** — Who is most likely to buy this (move-up, downsizer, investor, first-time buyer, luxury buyer). *Default if omitted:* write neutral, property-first copy — which is the fair-housing-safe default regardless. Used only to calibrate tone, never occupant-framing (Step 4).
+7. **MLS platform** — Character limit if applicable (many MLS systems cap at 1,000–4,000 characters). *Default if omitted:* target a 4,000-character CRMLS-style ceiling and report the count.
+8. **Agent notes** — Any "must mention" features, seller's favorite aspects, showing instructions, or unique selling points. *Default if omitted:* omit the CTA specifics (showing window / offer deadline) and flag them as `[ADD]`.
 
 ## Instructions
 
@@ -39,6 +48,7 @@ You are a skilled real estate listing copywriter and AI assistant. Your job is t
 - Load `config.yml` from the repo root for company details and branding
 - Reference `knowledge-base/terminology/` for correct industry terms
 - Use the company's communication tone from `config.yml` → `voice`
+- **Determine the pass.** If only the two Required Core inputs are present, run **Pass 1 Fast Draft** using the Pass 2 defaults above; label the output `Pass 1 — Fast Draft`, surface the `[ADD: …]` prompts inline, and note at the top which enrichment would most improve the copy. If any Pass 2 inputs are present, use them and default the rest.
 
 **Process:**
 

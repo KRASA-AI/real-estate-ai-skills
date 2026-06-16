@@ -4,11 +4,15 @@ category: sales
 tools: [claude, chatgpt]
 difficulty: intermediate
 time_saved: "~75 min/listing"
-version: 1.0
-last_eval_score: null
+version: 2.0
+last_eval_score: 8.80
 ---
 
 # Listing Video Workflow
+
+## Quick Start
+
+**Minimum viable run (4 inputs):** give (1) the **property snapshot** (address or neighborhood, beds/baths/sqft, price, ≥3 standout features, buyer archetype), (2) the **photo inventory** (the shots you have, roughly in hero order), (3) the **platform mix** (which surfaces you actually post to), and (4) the **voice tier** (do you go on camera / use your own pre-recorded voice / an AI clone / a stock voice). That is enough for a **Pass 1 Fast Plan** — a fit-for-purpose cut set (not always all six), a shot-ordered storyboard, per-cut narration, the platform-aspect-duration specs, the end-card + watermark spec, and the seven-check compliance sweep. Every other Required Input is **Pass 2 Enrichment** with a stated default (e.g., no Lead-With tier → derive a lightweight one from standout features + archetype; no music input → default to instrumental licensed-library BPM bands), so an agent fresh off a photo shoot is never blocked. Run Pass 2 when the listing is a flagship, when an AI voice-clone (L2) is in play, or when comparing vendor tools head-to-head.
 
 ## Purpose
 
@@ -20,17 +24,23 @@ Use this skill at four checkpoints. (1) **Pre-launch, after the photo shoot but 
 
 ## Required Input
 
-Provide what you have; the skill produces a defensible plan from partial input:
+The skill runs in two passes. **Pass 1 = Fast Plan** (Required Core — produces a defensible, compliance-ready cut plan). **Pass 2 = Enrichment** (sharpens the plan with branding, music, and jurisdiction detail). The skill produces a defensible plan from partial input; each Pass 2 item carries a **Default if omitted** so a missing input is filled, not blocking.
+
+### Pass 1 — Required Core (4 inputs)
 
 1. **Property snapshot** — Address (or neighborhood-only if pocket/pre-market), beds/baths/sqft, list price, property type, architectural style, standout features (≥ 3), expected buyer archetype(s).
-2. **Lead-With / Support-With / Deemphasize tiers** — If `listing-feature-engagement-optimizer.md` has already run, paste the output. If not, the skill will derive a lightweight version from standout features and buyer archetype.
-3. **Photo inventory** — List of shots the photographer captured, in the order the agent prefers to hero them, tagged by type: Hero Exterior / Signature Interior / Lifestyle Amenity / Verified-Fact Frame / Agent-on-Camera / Twilight / Aerial / Detail Macro / Neighborhood Context. Flag gaps — if twilight or aerial is missing, the skill will route those shots to cuts that tolerate their absence.
-4. **Platform mix** — Which surfaces the agent actively posts to: Instagram (Reels + Feed + Stories), TikTok, YouTube Shorts, YouTube Long, Facebook (Feed + Reels), LinkedIn, Zillow listing video slot, MLS video field, brokerage website, email.
-5. **Brand voice and on-camera posture** — 2–3 descriptors (e.g., "warm and local," "polished luxury," "data-driven advisor"). Also: does the agent go on camera, want a voiceover in their own pre-recorded voice, want an AI-cloned version of their voice, or prefer a vendor stock voice?
-6. **Brokerage branding rules** — Logo file or watermark spec, required end-card elements (agent name, DRE/license #, brokerage name, Equal Housing logo), color palette, any brokerage-required disclosure language.
-7. **Music preference** — Licensed library the agent uses (Epidemic Sound, Artlist, Musicbed), platform-native music (Instagram/TikTok audio library), or vendor-generated AI music. Tolerance for vocal tracks vs. instrumental only.
-8. **Jurisdiction** — State (for AI-disclosure statutes like CA AB 723 and any similar laws), MLS (some MLSs require video labels and some prohibit exterior drone shots that include neighbors' property). If outside the U.S., note so the compliance sweep can skip U.S.-specific rules.
-9. **Agent config** — `config.yml` provides brokerage, state, license #s, Equal Housing disclaimer, CAN-SPAM footer text, and preferred caption voice.
+2. **Photo inventory** — List of shots the photographer captured, in the order the agent prefers to hero them, tagged by type: Hero Exterior / Signature Interior / Lifestyle Amenity / Verified-Fact Frame / Agent-on-Camera / Twilight / Aerial / Detail Macro / Neighborhood Context. Flag gaps — if twilight or aerial is missing, the skill will route those shots to cuts that tolerate their absence.
+3. **Platform mix** — Which surfaces the agent actively posts to: Instagram (Reels + Feed + Stories), TikTok, YouTube Shorts, YouTube Long, Facebook (Feed + Reels), LinkedIn, Zillow listing video slot, MLS video field, brokerage website, email.
+4. **On-camera + voice posture** — Does the agent go on camera, want a voiceover in their own pre-recorded voice (L1), want an AI-cloned version of their voice (L2), or prefer a vendor stock voice (L3)? This drives the Step 4 voice-clone compliance tier, so it is Required Core, not optional.
+
+### Pass 2 — Enrichment (each has a default)
+
+5. **Lead-With / Support-With / Deemphasize tiers** — If `listing-feature-engagement-optimizer.md` has already run, paste the output. *Default if omitted:* derive a lightweight tiering from the standout features + buyer archetype in input #1.
+6. **Brand voice descriptors** — 2–3 descriptors (e.g., "warm and local," "polished luxury," "data-driven advisor"). *Default if omitted:* use `config.yml` → `voice`; if absent, default to "warm, specific, local-expert."
+7. **Brokerage branding rules** — Logo file or watermark spec, required end-card elements (agent name, DRE/license #, brokerage name, Equal Housing logo), color palette, any brokerage-required disclosure language. *Default if omitted:* build the end-card from `config.yml` (agent name + license # + brokerage + Equal Housing) and flag "verify brokerage logo/watermark spec before publishing."
+8. **Music preference** — Licensed library (Epidemic Sound, Artlist, Musicbed), platform-native audio, or AI-generated music; tolerance for vocal vs. instrumental. *Default if omitted:* assume instrumental-only and supply licensed-library BPM bands per cut (Flagship 85–105, Reel 105–125, Short 120–140, Teaser 130+) with a "confirm you hold a commercial-social license" flag.
+9. **Jurisdiction** — State (for AI-disclosure statutes like CA AB 723 and any similar laws), MLS (some MLSs require video labels and some prohibit exterior drone shots that include neighbors' property). *Default if omitted:* pull state from `config.yml`; run the full U.S. compliance sweep; flag MLS-specific video/drone rules as "verify against your MLS." If outside the U.S., note so the sweep can skip U.S.-specific rules.
+10. **Agent config** — `config.yml` provides brokerage, state, license #s, Equal Housing disclaimer, CAN-SPAM footer text, and preferred caption voice. Auto-loaded.
 
 ## Instructions
 
@@ -43,6 +53,7 @@ You are a listing-video production strategist embedded in a residential real-est
 - Reference `knowledge-base/regulations/` for the state's AI-disclosure law (CA AB 723 and equivalents) and the MLS's video labeling rule if present.
 - Confirm the agent has explicit consent for any AI voice-clone step — written record, not verbal.
 - Treat every photo as potentially AI-altered (virtual staging, sky replacement, grass greening, lens pull) and flag which ones carry an alteration that inherits into video.
+- **Determine the pass.** If only the four Required Core inputs are present, run **Pass 1 Fast Plan** using the Pass 2 defaults above; label the output `Pass 1 — Fast Plan` and list the applied defaults (e.g., "Lead-With tier derived; instrumental music defaulted; brokerage logo unverified") at the top so the agent knows what to confirm before publishing. If any Pass 2 inputs are present, use them and default the rest. The full Step 1–10 process runs either way; the pass only governs which inputs are real vs. defaulted.
 
 **Process (run in order — earlier steps set constraints for later ones):**
 
