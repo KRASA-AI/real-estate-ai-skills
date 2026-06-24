@@ -4,8 +4,8 @@ category: sales
 tools: [claude, chatgpt]
 difficulty: intermediate
 time_saved: "~3 hrs/quarterly batch; ~10 min/event-triggered re-score"
-version: 2.0
-last_eval_score: null
+version: 2.1
+last_eval_score: 8.80
 ---
 
 # Seller Intent Scorer
@@ -68,13 +68,14 @@ You are a real estate CRM analyst specializing in proactive seller pipelines. Yo
 
    | Component | Database (D) | Pre-LA (PLA) | Post-LA (Post-LA) | Mid-Mkt (MM) | Post-Pending (PP) |
    |---|---|---|---|---|---|
-   | A — Equity (0–20) | weighted 1.0 | 0.8 | 0.6 | 0.4 | 0.6 |
-   | B — Tenure (0–20) | 1.0 | 0.6 | 0.4 | 0.2 | 0.4 |
-   | C — Life-Stage (0–20) | 1.0 | 1.0 | 1.0 | 0.6 | 0.8 |
-   | D — Behavioral (0–20) | 1.0 | 1.0 | 0.8 | 1.2 | 1.4 |
-   | E — Market-Fit (0–20) | 1.0 | 1.0 | 1.2 | 1.6 | 1.4 |
+   | A — Equity (0–20) | 1.0 | 0.9 | 0.75 | 0.5 | 0.65 |
+   | B — Tenure (0–20) | 1.0 | 0.7 | 0.5 | 0.25 | 0.45 |
+   | C — Life-Stage (0–20) | 1.0 | 1.1 | 1.25 | 0.75 | 0.9 |
+   | D — Behavioral (0–20) | 1.0 | 1.1 | 1.0 | 1.5 | 1.5 |
+   | E — Market-Fit (0–20) | 1.0 | 1.2 | 1.5 | 2.0 | 1.5 |
+   | **Column sum (must = 5.00)** | **5.00** | **5.00** | **5.00** | **5.00** | **5.00** |
 
-   The weights re-balance the score so each stage's predictive signals are weighted to where the agent actually has leverage. (Example: a Mid-Marketing seller's tenure barely matters; their behavioral signals — feedback responsiveness, willingness to reduce — are predictive.) Components below.
+   The weights re-balance the score so each stage's predictive signals land where the agent actually has leverage (example: a Mid-Marketing seller's tenure barely matters — their behavioral signals, feedback responsiveness and willingness to reduce, are predictive). **Each stage column is normalized to sum to exactly 5.00 so the weighted total preserves the 0–100 scale** — five components, each maxing at 20, times an average weight of 1.0, equals 100. This normalization is mandatory, not cosmetic: a column summing to less than 5.00 silently caps that stage's maximum achievable score below 100 (a 4.00 column caps it at 80) and makes the stage's own top band (80–100) unreachable, so an MM seller who genuinely warrants the "price-reduction conversation today" call would never score into it. Verify every column sums to 5.00 before scoring. Components below.
 
 3. **Compute the five score components per contact.**
 
@@ -88,7 +89,7 @@ You are a real estate CRM analyst specializing in proactive seller pipelines. Yo
 
    **E. Market-Fit Score (0–20)** — Does the CURRENT market favor selling this specific home? Points: supply shortage in zip (MOI < 3) +12; price-per-sqft above purchase by 40%+ +6; days-on-market in zip < 21 +6; rate trend favorable (rates dropping > 50 bps last 90 days) +4; seller-concession percentage in zip < 2% +2. Cap at 20. Subtract 4 if MOI > 6 or DOM > 60. The MOI band is the canonical input from `market-analysis-summary.md` four-band ladder. For Mid-Marketing stage, this component rises to a 1.6 weight — the question becomes "given current market, can this listing reasonably sell at the current price?"
 
-4. **Sum to 0–100 with stage weights applied.** The weighted sum keeps the 0–100 scale. Classify by stage-aware band (below).
+4. **Sum to 0–100 with stage weights applied.** Weighted total = Σ(component score × stage weight). Because each stage's weight column is normalized to sum to 5.00, the weighted total lands on the same 0–100 scale for every stage, and every stage can reach its 80–100 top band. Confirm the column sum is 5.00 before trusting the total — a total that cannot exceed ~80 is the signature of a mis-summed column, not a cold pipeline. Classify by stage-aware band (below).
 
 5. **Classify each contact by stage-aware band.**
 

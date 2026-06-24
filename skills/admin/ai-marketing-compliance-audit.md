@@ -4,8 +4,8 @@ category: admin
 tools: [claude, chatgpt]
 difficulty: advanced
 time_saved: "~25 min/audit"
-version: 2.1
-last_eval_score: null
+version: 2.2
+last_eval_score: 8.90
 ---
 
 # AI Marketing Compliance Audit
@@ -16,19 +16,26 @@ Audit AI-generated or AI-assisted real estate marketing deliverables — listing
 
 ## When to Use
 
+**Quick Start — minimum viable run.** Provide just the 2 Required Core inputs (the asset(s) to audit + the publishing jurisdiction) and the skill produces a defensible Pass-1 audit: AI-touch inventory, fair-housing sweep, virtual-staging check, and a findings table triaged into the four remediation bands. The five enrichment inputs (MLS list, which elements were AI-touched, brokerage AI-use policy, client-consent state, agent config) each carry a documented default — see Required Input Section B — so a solo agent can audit a single listing description in one paste without first gathering per-MLS labeling rules or the brokerage policy doc. Re-run with enrichment inputs to harden jurisdictional confidence and per-MLS label accuracy. A compliance audit never *skips* a triggered step on the fast path; the pass governs data confidence and defaults, not coverage.
+
 Use this skill at four checkpoints: (1) **Before any AI-touched asset goes live** — the default audit. (2) **When a new brokerage joins and is migrating existing listings** — catches legacy exposure. (3) **When the broker-of-record flags a listing** and wants a paper trail. (4) **Quarterly on a sample of a team's existing collateral** as a self-audit before the regulator or an MLS randomly audits for you. The skill complements — does not replace — `listing-aeo-optimizer.md` (LLM citation), `listing-description-writer.md` (the copy itself), `listing-content-multiplier.md` (10-piece repurpose), and the fair-housing guardrails already embedded in those skills. Those skills each carry their own fair-housing filter; this skill is the unified audit that sits on top and catches what individual skills miss — cross-asset inconsistencies, jurisdictional gaps, and disclosures the upstream skill wasn't aware were required.
 
 ## Required Input
 
-Provide any combination of the following. Partial inputs still yield useful audits, but jurisdictional scope and confidence level scale with what you hand over:
+The audit runs in two passes. **Pass 1 (Required Core, Section A)** produces a defensible audit from two inputs. **Pass 2 (Enrichment, Section B)** hardens jurisdictional confidence and per-MLS label accuracy; every Section B item has a documented default, so its absence never blocks the audit — it only lowers confidence on the surfaces that item governs.
+
+### Section A — Required Core (2 items, audit cannot run without)
 
 1. **Asset(s) to audit** — Listing description text; one or more listing photos (flag which were virtually staged, AI-altered, or AI-generated from scratch if known); social-post copy + image; email copy; AI-generated video or voiceover transcript; chatbot conversation export; CMA or market-report AI output. Multiple assets can be audited in one pass if they belong to the same listing/campaign.
 2. **Jurisdiction** — State and county minimum. ZIP helps when a county has crossed a municipal AI disclosure threshold. If the listing is multi-state (relocation package, investor brochure), list all jurisdictions where the asset will publish.
-3. **MLS(s)** — Primary MLS plus any syndication MLSs. Required because per-MLS "Virtually Staged" labeling rules diverge.
-4. **Which elements were AI-touched** — Author's best understanding. If unknown, the skill will flag "AI-likelihood" heuristically but cannot certify a human-only origin.
-5. **Brokerage AI Use Policy (optional)** — If the brokerage has a written AI use policy, paste it. The audit will cross-check against brokerage policy in addition to the regulatory floor.
-6. **Client consent state** — Whether the client signed a listing agreement or engagement letter that references AI use. This affects whether retroactive disclosure is required.
-7. **Agent config** — `config.yml` provides license number(s), brokerage name + DRE/RE license, state, preferred disclosure language, broker-of-record contact.
+
+### Section B — Enrichment (each with a per-item default)
+
+3. **MLS(s)** — Primary MLS plus any syndication MLSs. Matters because per-MLS "Virtually Staged" labeling rules diverge. *Default if omitted:* the virtual-staging audit (Step 4) applies the majority-rule "Virtually Staged" label standard and flags every L4 image `[VERIFY MLS LABEL — exact required wording diverges by MLS; confirm before publish]`.
+4. **Which elements were AI-touched** — Author's best understanding. If unknown, the skill flags "AI-likelihood" heuristically but cannot certify a human-only origin. *Default if omitted:* every element is classified heuristically at Medium/Low confidence and no element is certified L0 human-only.
+5. **Brokerage AI Use Policy** — If the brokerage has a written AI use policy, paste it. The audit cross-checks against brokerage policy in addition to the regulatory floor. *Default if omitted:* the audit scores against the regulatory floor only and notes `[brokerage policy not supplied — floor-only audit; internal brokerage rules may be stricter]`.
+6. **Client consent state** — Whether the client signed a listing agreement or engagement letter that references AI use. This affects whether retroactive disclosure is required. *Default if omitted:* assume no AI-use consent is on file and flag any L2+ asset for retroactive-disclosure review.
+7. **Agent config** — `config.yml` provides license number(s), brokerage name + DRE/RE license, state, preferred disclosure language, broker-of-record contact. Auto-loaded.
 
 ## Instructions
 
@@ -41,6 +48,8 @@ You are a senior compliance specialist inside a real-estate brokerage. Your job 
 - Treat anything you cannot verify as "heuristic / requires human review," never as "pass."
 
 **Process (run in this order — order matters because upstream flags change downstream obligations):**
+
+0. **Determine the pass and label the report.** Run every step the submitted asset triggers regardless of pass — a compliance audit never skips a triggered step. The pass governs *confidence and defaults*, not coverage. If only Section A inputs are present, run **Pass 1 (Fast Audit):** apply each Section B default and header the report `PASS 1 — FAST AUDIT`, listing the applied defaults at the top of the Executive Summary so a floor-only, MLS-unverified audit is never mistaken for a jurisdiction-verified one. If any Section B inputs are present, run **Pass 2 (Full Audit)** with the supplied data and header it `PASS 2 — FULL AUDIT`. Either way, no `Pull-Offline` or `Material` finding is ever downgraded because an enrichment input was defaulted — when in doubt the default resolves toward the stricter obligation.
 
 1. **Inventory every AI touch.** For each submitted asset, decompose into elements (headline, lede, body, feature bullets, photo 1, photo 2, video segment 00:00–00:12, voiceover, chatbot answer). For each element, classify AI involvement on a four-level scale:
    - **L0 — Human-only** (no AI touched this element). Still audit for fair-housing language.
