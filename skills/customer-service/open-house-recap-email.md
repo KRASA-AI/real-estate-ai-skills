@@ -4,8 +4,8 @@ category: customer-service
 tools: [claude, chatgpt]
 difficulty: beginner
 time_saved: "~5 min/visitor"
-version: 2.0
-last_eval_score: 4.20
+version: 2.1
+last_eval_score: 8.90
 ---
 
 # Open House Recap Email
@@ -16,30 +16,39 @@ Generate individualized post-open-house follow-up emails for each visitor — ti
 
 ## When to Use
 
+**Quick Start (minimum viable run):** Two inputs produce the full set of send-ready emails — the **property details** and the **visitor list** (whatever fields each visitor left). The skill tiers each visitor from the sign-in and any reaction notes you captured, applies the per-tier structure, and pulls the agent's signature, brand voice, follow-up cadence, and service area from `config.yml` so every email already sounds like the agent. That is the Pass-1 input set. Add the Pass-2 enrichment — your live per-visitor observations, an explicit interest tier, seller context, and an explicit brand-voice note — when you want the specific-recall openers and CTAs tuned past what the sign-in alone supports. A solo agent who worked the door can paste the sign-in sheet and ship; the recall lines get sharper the moment per-visitor observations are added.
+
 Use this skill within 24 hours of an open house to convert the visitor list into individual follow-up emails, when preparing the recap for a team member who covered the open house for you, when refreshing follow-up on a still-active listing where previous visitors haven't been re-contacted, or whenever you want to replace the generic "Thanks for stopping by!" template with messages calibrated to each visitor's actual interest. Pair with `buyer-follow-up-sequence.md` for any visitor who moves to active nurture.
 
 ## Required Input
 
-Provide the following:
+Input is split into a **Required Core** (Pass 1 — the emails ship on these) and **Optional Enrichment** (Pass 2 — sharpens the recall openers, tiering, and messaging). Each Optional item has a default the skill applies and names when omitted, so a partial sign-in sheet still produces send-ready emails.
+
+### Pass 1 — Required Core (the emails ship on these)
 
 1. **Property details** — Address, list price, beds/baths, headline features, open-house date and time, next open-house date if scheduled, number of offers currently in hand
 2. **Visitor list** — For each visitor, provide what you have (name, email, phone, how they heard about the open house, whether they're working with an agent, timeline, budget range, reaction notes)
-3. **Agent observations** — Your live notes on each visitor's behavior: which rooms they spent time in, what they asked about, how long they stayed, whether they returned with someone, any specific objections or enthusiasm
-4. **Interest tiering** — For each visitor, assign one of: **Hot** (serious buyer, no agent, clear timeline), **Warm** (interested but not urgent, or has an agent), **Neutral** (neighbors, casual browsers, investors scouting), or **Unknown** (didn't sign in fully, brief visit)
-5. **Seller context** — Any facts relevant to messaging: recent price drop, seller motivation to close by a specific date, competing showings scheduled, pre-inspection report available
-6. **Agent signature details** — Pulled from `config.yml` (name, phone, email, brokerage, license #, photo if email supports it)
-7. **Brand voice** — 2–3 descriptors (e.g., "warm and local," "professional concierge," "data-forward advisor")
+
+### Pass 2 — Optional Enrichment (each has a default if omitted)
+
+3. **Agent observations** — Your live notes on each visitor's behavior: which rooms they spent time in, what they asked about, how long they stayed, whether they returned with someone, any specific objections or enthusiasm. *Default if omitted: derive the specific-recall opener from the sign-in fields (how they heard, stated timeline, working-with-agent status); any visitor with no observable detail is routed to the `Gaps Flagged` list with a phone-follow-up suggestion rather than given a fabricated recall line.*
+4. **Interest tiering** — For each visitor, assign one of: **Hot** (serious buyer, no agent, clear timeline), **Warm** (interested but not urgent, or has an agent), **Neutral** (neighbors, casual browsers, investors scouting), or **Unknown** (didn't sign in fully, brief visit). *Default if omitted: the skill infers the tier from the sign-in + observation data using the Step-1 tiering rules and states the inferred tier next to each email so the agent can correct it.*
+5. **Seller context** — Any facts relevant to messaging: recent price drop, seller motivation to close by a specific date, competing showings scheduled, pre-inspection report available. *Default if omitted: write the body around the property's headline features and any verifiable open-house facts only; never invent urgency or offer counts.*
+6. **Brand voice** — 2–3 descriptors (e.g., "warm and local," "professional concierge," "data-forward advisor"). *Default if omitted: use the voice profile from `config.yml` — `voice.tone`, the `always_use` phrases, and the `never_use` blocklist — and match the agent's `followup_style` cadence; flag the emails for voice confirmation on Pass 2.*
+7. **Agent config** — `config.yml` is auto-loaded and is the personalization backbone of every email: signature block (name, phone, email, brokerage, license #, brokerage physical address for CAN-SPAM), `service_area` (used to fill the Neutral/stay-in-touch CTA — "anything in [service_area] that fits"), `voice.tone` + `always_use` + `never_use` (applied to every body), `voice.followup_style` (sets the send-order cadence in the output), and the agent's CRM (the emails are formatted to paste into that CRM's note/email field). *Auto-loaded; the skill names any config field it could not find rather than substituting a placeholder.*
 
 ## Instructions
 
 You are a real estate listing agent's AI assistant. Your job is to write individualized, non-template follow-up emails to open-house visitors — each one tuned to the visitor's interest level, what they actually said and did, and the next step that makes sense for that relationship.
 
 **Before you start:**
-- Load `config.yml` for agent signature, brokerage details, license number, and brand voice
+- Load `config.yml` and use it as the personalization backbone, not just a signature source: pull the signature block (name, phone, email, brokerage, license #, brokerage physical address for CAN-SPAM), `service_area` (fills the Neutral stay-in-touch CTA), `voice.tone` + `always_use` phrases + `never_use` blocklist (applied to every body), `voice.followup_style` (sets the send-order cadence), and the agent's CRM (format the emails to paste cleanly into that CRM). Name any field you could not find rather than substituting a generic placeholder.
 - Reference `knowledge-base/regulations/` for CAN-SPAM requirements, fair housing language, and state-specific brokerage disclosure rules
 - Reference `knowledge-base/best-practices/` for email subject-line norms and open-house follow-up timing
 
 **Process:**
+
+0. **Determine the pass and label the output.** If only the Required Core (property details + visitor list) is supplied, run **Pass 1 (Fast Recap)**: infer each visitor's tier from the sign-in + observation fields, draw voice and the stay-in-touch CTA from `config.yml`, label the batch "Fast Recap — confirm inferred tiers and add live observations to sharpen recall lines," and list the defaults applied. If Optional Enrichment is supplied, run **Pass 2 (Tuned Recap)** at full depth. Either pass runs the full Step-7 compliance audit and the no-fabrication rules — the fast path never skips fair-housing review or invents observations to manufacture a recall line.
 
 1. **Segment the list by interest tier** — Before drafting any email, group visitors into Hot / Warm / Neutral / Unknown. Each tier gets a different structure, tone, and CTA:
 
@@ -99,7 +108,7 @@ You are a real estate listing agent's AI assistant. Your job is to write individ
 - Each email reads like it was hand-written for that visitor
 - Subject lines are curiosity-driven, not sales-y ("A quick answer on 4829 Glenalbyn" not "Amazing Open House Opportunity!!!")
 - Body length matches tier — don't write 200 words to a neutral browser
-- Tone matches agent's stated brand voice
+- Tone matches the agent's brand voice — apply `config.yml` `voice.tone`, weave in the `always_use` phrases where they land naturally (never forced), and respect the `never_use` blocklist in every email; the Neutral stay-in-touch CTA names the agent's actual `service_area` rather than a generic "the area"
 - Every CTA has a specific next action (date/time/channel), not a vague "let me know"
 - Ready to paste into email client or CRM with no editing
 - Saved to `outputs/` if the user confirms

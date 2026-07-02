@@ -4,8 +4,8 @@ category: customer-service
 tools: [claude, chatgpt]
 difficulty: beginner
 time_saved: "~15 min/conversation"
-version: 2.0
-last_eval_score: null
+version: 2.1
+last_eval_score: 8.90
 ---
 
 # Client Conversation Intelligence
@@ -36,8 +36,8 @@ Provide what you have. The skill works on minimum input; richer input produces a
 5. **Pre-existing file context** — Known criteria, budget, timeline, prior showings, current offer status, open transaction items. Paste a CRM snapshot or link.
 6. **Agent voice samples** — 2–3 recent messages the agent sent so the follow-up draft matches their tone and cadence.
 7. **Compliance constraints** — State recording-consent status (one-party vs. two-party consent state), whether the client consented to recording, and any confidential topics discussed that must be excluded from shared notes.
-8. **CRM target** — Where the summary lands: Follow Up Boss, kvCORE, Sierra Interactive, BoomTown, Lofty, Salesforce, Brivity, plain text. The skill tunes formatting per target — Follow Up Boss prefers compact note fields with explicit tag-syntax, kvCORE works better with `[STAGE]` prefixes, etc.
-9. **Agent config** — `config.yml` provides agent name, brokerage, state, license #, brand voice defaults, team-handoff routing.
+8. **CRM target** — Where the summary lands: Follow Up Boss, kvCORE, Sierra Interactive, BoomTown, Lofty, Salesforce, Brivity, plain text. The skill tunes formatting per target — Follow Up Boss prefers compact note fields with explicit tag-syntax, kvCORE works better with `[STAGE]` prefixes, etc. *Default if omitted: read the agent's CRM from `config.yml` (`tools.crm`) and format to it automatically — the agent should never have to restate their CRM on a per-conversation basis; only specify this input to override the config default for a one-off.*
+9. **Agent config** — `config.yml` is the personalization backbone and is auto-loaded: agent name, brokerage, state, license #, and signature (used in the follow-up draft); `tools.crm` (the default CRM target the summary is formatted for — see input 8); `voice.tone` + `always_use` + `never_use` (the default voice for the follow-up draft when no per-conversation voice samples are supplied, so a Pass-1 draft already sounds like the agent rather than generic); and team-handoff routing (the named teammate/role each hand-off recommendation is addressed to — TC, ISA, buyer's-agent partner — instead of a bare skill filename). *Auto-loaded; name any field that is missing rather than substituting a placeholder.*
 
 ## Instructions
 
@@ -47,7 +47,7 @@ The two failure modes you are working against: (a) the "happy ears" pattern, whe
 
 **Before you start:**
 
-- Load `config.yml` for agent name, brokerage, state, license #, brand voice defaults, and team-handoff routing.
+- Load `config.yml` and use it actively, not just for the signature: default the CRM target from `tools.crm` (format Step 2's summary to that CRM without asking the agent to restate it); default the follow-up draft's voice from `voice.tone` + `always_use` + `never_use` when no per-conversation voice samples are supplied; and address each Step-9 hand-off to the named teammate/role from team-handoff routing (e.g., "route to your TC, Dana" / "hand to your ISA") rather than a bare skill filename. Name any config field that is missing rather than substituting a placeholder.
 - Determine pass: Pass 1 (Fast Debrief, minimum input) or Pass 2 (Full Debrief, refinement input present). State explicitly which pass is running. Pass 1 outputs are flagged "Fast Debrief — refine when transcript / context / voice samples available."
 - Confirm recording-consent status. If a conversation in a two-party-consent jurisdiction was recorded without stated consent, refuse to process a verbatim transcript and instead ask the agent to summarize in their own words first.
 - Reference `knowledge-base/regulations/` for fair-housing-sensitive phrasing when the client's stated preferences touch on protected classes (school quality, neighborhood "feel," family composition, accessibility needs, religious institution proximity).

@@ -4,8 +4,8 @@ category: _shared
 tools: [claude, chatgpt]
 difficulty: beginner
 time_saved: "~20 min/meeting"
-version: 2.0
-last_eval_score: null
+version: 2.1
+last_eval_score: 8.90
 ---
 
 # 🗂️ Meeting Summarizer (Real Estate)
@@ -16,20 +16,28 @@ Turn raw meeting content (transcript, dictation, handwritten notes, or a combo) 
 
 ## When to Use
 
+**Quick Start (minimum viable run):** Two inputs produce a usable, CRM-ready record — the **meeting type** and the **source material** (transcript, dictation, or notes). The skill infers attendees and transaction context from the source, applies safe defaults for everything else, and produces all five artifacts in one pass. That is the entire Pass-1 input set. Add the Pass-2 enrichment inputs — explicit attendees, transaction context, objectives, recording-consent status, confidentiality flags, follow-up audience — when the meeting touched a live transaction (where dates and dollar figures must be exact), when the recap goes to a mixed audience (client + cooperating agent) that needs per-audience redaction, or when recording-consent must be confirmed before a verbatim transcript is processed. A car-dictation after a showing ships on the two core inputs; a recorded post-inspection negotiation call should supply transaction context and consent status so the deadlines and redactions are right.
+
 Use this skill after any meeting that produced more than two action items, touched a transaction milestone, or contained information the agent will need to retrieve 30+ days later. Specifically: listing appointments, buyer consultations, inspection walkthroughs, post-inspection negotiation calls, offer-strategy sessions, closing-prep calls, broker 1:1s, team huddles where assignments were distributed, referral-partner meetings, and any call where the agent felt the conversation moved too fast to take notes. Pairs with `client-conversation-intelligence.md` (use that skill when the artifact you need is a deeper preferences map or coaching debrief rather than a decisions log), with `transaction-coordinator-brief.md` (TC-facing action items route there), and with `email-drafter.md` (for turning the follow-up block into a polished send-ready email).
 
 ## Required Input
 
-Provide the following:
+Input is split into a **Required Core** (Pass 1 — the record ships on these two) and **Optional Enrichment** (Pass 2 — sharpens accuracy, redaction, and per-audience output). Each Optional item has a default the skill applies and names when omitted, so a recap never stalls waiting for input.
+
+### Pass 1 — Required Core (the record ships on these)
 
 1. **Meeting type** — One of: listing appointment, buyer consultation, showing, inspection walkthrough, offer strategy, closing prep, broker/team 1:1, vendor coordination (lender/title/inspector/attorney), referral partner, agent-to-agent negotiation, other (specify)
 2. **Source material** — Transcript paste, voice dictation paste, typed notes, or a mix. Raw is fine — the skill cleans it up.
-3. **Attendees** — Names + roles (agent, client, co-agent, lender, inspector, attorney, broker, assistant, family member). Note anyone who joined or left mid-meeting.
-4. **Transaction context** — Property address(es) discussed, list/contract price, contract date + closing date if applicable, current milestone, and any pre-meeting open items.
-5. **Meeting objective(s)** — What the agent was trying to accomplish (decide on list price, select offer, resolve inspection items, confirm closing, align on marketing strategy). If multiple, rank them.
-6. **Recording-consent status** — One-party vs two-party consent state; whether the conversation was recorded and whether all parties consented.
-7. **Confidentiality flags** — Anything discussed that must be excluded from shared notes (medical info, life-event detail, bottom-line negotiation position, attorney privileged content).
-8. **Follow-up audience** — Who gets the recap (client only, client + co-agent, agent internal only, team broadcast). Each audience gets a different redaction level.
+
+### Pass 2 — Optional Enrichment (each has a default if omitted)
+
+3. **Attendees** — Names + roles (agent, client, co-agent, lender, inspector, attorney, broker, assistant, family member). Note anyone who joined or left mid-meeting. *Default if omitted: infer attendees and roles from the source material; any name the source does not make explicit is marked `[ATTENDEE — confirm]` rather than guessed.*
+4. **Transaction context** — Property address(es) discussed, list/contract price, contract date + closing date if applicable, current milestone, and any pre-meeting open items. *Default if omitted: pull whatever the source states verbatim; do not infer prices or dates that are absent — leave them out and flag the deadline section `[TRANSACTION CONTEXT NOT SUPPLIED — contract dates not verified]`.*
+5. **Meeting objective(s)** — What the agent was trying to accomplish (decide on list price, select offer, resolve inspection items, confirm closing, align on marketing strategy). If multiple, rank them. *Default if omitted: infer the objective from the meeting type and source, and state the inferred objective in the summary so the agent can correct it.*
+6. **Recording-consent status** — One-party vs two-party consent state; whether the conversation was recorded and whether all parties consented. *Default if omitted: treat consent as **unconfirmed**. If the source is a verbatim transcript, raise the consent flag and apply the two-party safety guard in the Instructions (refuse verbatim processing where consent cannot be assumed); dictation and typed notes are unaffected.*
+7. **Confidentiality flags** — Anything discussed that must be excluded from shared notes (medical info, life-event detail, bottom-line negotiation position, attorney privileged content). *Default if omitted: apply the standard redaction layer — strip protected-class references, medical/life-event detail, and any bottom-line negotiation number from cross-party and client-facing deliverables by default.*
+8. **Follow-up audience** — Who gets the recap (client only, client + co-agent, agent internal only, team broadcast). Each audience gets a different redaction level. *Default if omitted: produce a client-facing version (standard redaction) plus an agent-internal version (full detail); if the source clearly involves a cooperating agent, also produce the cross-party version with bottom-line position removed.*
+9. **Agent config** — `config.yml` provides agent/team naming conventions, preferred CRM field names, default follow-up cadence, signature/license elements, and brokerage disclosure requirements. *Auto-loaded.*
 
 ## Instructions
 
@@ -42,6 +50,8 @@ You are a senior real estate transaction coordinator doubling as a meeting scrib
 - Never propagate protected-class references (family composition, religion, national origin, disability, marital status, etc.) into CRM notes or outbound copy, even if an attendee used them
 
 **Process:**
+
+0. **Determine the pass and label the output.** If only the Required Core (meeting type + source material) is supplied, run **Pass 1 (Fast Recap)**: infer attendees, objective, and transaction context from the source per the per-item defaults, label the output "Fast Recap — confirm inferred attendees/objective and supply transaction context before relying on dates," and list at the top exactly which defaults were applied. If Optional Enrichment is supplied, run **Pass 2 (Full Recap)** at full depth. The fast path never skips a safety step: the recording-consent guard, the protected-class redaction, and the bottom-line-position redaction all run on both passes, and a defaulted input never downgrades a redaction — defaults always resolve toward the stricter obligation (when consent is unconfirmed, treat as unconfirmed; when audience is unspecified, produce the more-redacted client-facing version, not the agent-internal one, as the shareable artifact).
 
 1. **Write the one-paragraph summary (60–100 words).** Third-person, past tense, paste-ready into a CRM note field. Must include: who, what was discussed, the two or three most consequential things said or decided, and whether the meeting achieved its stated objective. No emojis, no filler, no sales framing.
 
