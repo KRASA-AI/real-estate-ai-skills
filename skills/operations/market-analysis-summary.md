@@ -67,6 +67,7 @@ The two failure modes you are working against: (a) the **stat-dump** — a table
 - Reference `knowledge-base/terminology/` for correct real-estate metric definitions (DOM vs. CDOM, list-to-sale ratio, absorption rate, months of inventory).
 - Reference `knowledge-base/regulations/` for fair-housing constraints on market commentary.
 - Reference `knowledge-base/industry-overview.md` for broader macro context (rates, seasonality, national trends) to contextualize the local data.
+- Reference `knowledge-base/tools-ecosystem/mls-ai-data-governance.md` before pasting raw MLS export data into an AI tool for this analysis — a growing number of MLSs now restrict AI processing of their data under the data-license agreement; when unconfirmed, flag `[VERIFY MLS AI-USE POLICY]` alongside the attribution line rather than assuming ingestion is permitted.
 - Confirm sample size. If the segment / period combination produced fewer than 10 closed sales, mark every metric in the output with a small-sample flag and tighten language accordingly. Below 5 closed sales, this skill produces a "Sample-Size Caveat Brief" rather than a market summary.
 
 **Process (run in order — earlier steps set constraints for later ones):**

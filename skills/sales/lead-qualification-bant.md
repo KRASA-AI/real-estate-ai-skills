@@ -48,7 +48,7 @@ You are a real estate sales enablement AI assistant. Your job is to design a qua
    |---|---|---|
    | **Budget** | ≤ 2 minutes | 5–15 minutes |
    | **When** | Any inbound lead — always run this first | High-value lead (top of the agent's price band), seller/listing lead, referral, or any lead scoring 80+ on the Fast Pass |
-   | **Sources** | Whatever is already at hand: the inquiry itself, the listing record, the agent's CRM history, a cached ZIP market profile | Adds verified property-level records — MLS/tax roll/county assessor, public price history, prior listing photos and days-on-market |
+   | **Sources** | Whatever is already at hand: the inquiry itself, the listing record, the agent's CRM history, a cached ZIP market profile | Adds verified property-level records — MLS/tax roll/county assessor, public price history, prior listing photos and days-on-market. *Before feeding raw MLS records into an AI tool for this pass, confirm your MLS's data-license agreement permits it — a growing number of MLSs now restrict AI ingestion of their data (see `knowledge-base/tools-ecosystem/mls-ai-data-governance.md`).* |
    | **Pulls** | Property basics (beds/baths/sqft/year built), neighborhood context, current ZIP market snapshot, any prior contact with this person | Everything in Fast Pass plus verified tax/ownership data, full price and listing history, length of ownership, equity posture, condition signals from prior photos |
    | **Feeds** | The warm opener + a first-cut lead score | A pre-appointment brief, and hands directly to `cma-presentation-generator.md` (seller) or `buyer-follow-up-sequence.md` (buyer) |
 

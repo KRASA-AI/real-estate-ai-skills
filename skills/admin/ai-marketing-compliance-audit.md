@@ -4,8 +4,8 @@ category: admin
 tools: [claude, chatgpt]
 difficulty: advanced
 time_saved: "~25 min/audit"
-version: 2.3
-last_eval_score: 9.20
+version: 2.4
+last_eval_score: null
 ---
 
 # AI Marketing Compliance Audit
@@ -31,7 +31,7 @@ The audit runs in two passes. **Pass 1 (Required Core, Section A)** produces a d
 
 ### Section B — Enrichment (each with a per-item default)
 
-3. **MLS(s)** — Primary MLS plus any syndication MLSs. Matters because per-MLS "Virtually Staged" labeling rules diverge. *Default if omitted:* `config.yml → mls.name` + the agent's standing syndication list, if present. Absent config, the virtual-staging audit (Step 4) applies the majority-rule "Virtually Staged" label standard and flags every L4 image `[VERIFY MLS LABEL — exact required wording diverges by MLS; confirm before publish]`. **A config-supplied MLS name pre-fills which label rule to check but never certifies it** — the exact wording is still verified against that MLS before an L4 image is cleared.
+3. **MLS(s)** — Primary MLS plus any syndication MLSs. Matters because per-MLS "Virtually Staged" labeling rules diverge, and — new as of mid-2026 — because a growing number of MLSs have adopted a written AI-use policy governing whether MLS data may be fed into an AI tool at all (see `knowledge-base/tools-ecosystem/mls-ai-data-governance.md`). *Default if omitted:* `config.yml → mls.name` + the agent's standing syndication list, if present. Absent config, the virtual-staging audit (Step 4) applies the majority-rule "Virtually Staged" label standard and flags every L4 image `[VERIFY MLS LABEL — exact required wording diverges by MLS; confirm before publish]`, and Step 2's new MLS AI-Use Policy row flags `[VERIFY MLS AI-USE POLICY — confirm your MLS's data-license agreement permits AI ingestion before this or any MLS-data-consuming skill runs]`. **A config-supplied MLS name pre-fills which label rule to check but never certifies it** — the exact wording, and the AI-use permission, are still verified against that MLS before an L4 image is cleared or MLS data is fed into an AI tool.
 4. **Which elements were AI-touched** — Author's best understanding. If unknown, the skill flags "AI-likelihood" heuristically but cannot certify a human-only origin. *Default if omitted:* every element is classified heuristically at Medium/Low confidence and no element is certified L0 human-only.
 5. **Brokerage AI Use Policy** — If the brokerage has a written AI use policy, paste it. The audit cross-checks against brokerage policy in addition to the regulatory floor. *Default if omitted:* read `config.yml → brokerage.ai_use_policy` (a stored policy is audited against every run — the agent pastes it once, not per audit). Absent both, the audit scores against the regulatory floor only and notes `[brokerage policy not supplied — floor-only audit; internal brokerage rules may be stricter]`.
 6. **Client consent state** — Whether the client signed a listing agreement or engagement letter that references AI use. This affects whether retroactive disclosure is required. *Default if omitted:* if `config.yml → brokerage.listing_agreement_has_ai_clause` is true, treat AI-use consent as on file for assets under that agreement and say so; otherwise assume no consent is on file and flag any L2+ asset for retroactive-disclosure review. **The default resolves toward the stricter obligation** — an ambiguous or absent config value is read as "no consent."
@@ -74,6 +74,7 @@ You are a senior compliance specialist inside a real-estate brokerage. Your job 
    | **TCPA / CAN-SPAM** | AI-drafted SMS / email / chatbot on SMS | Opt-out + sender identification survive AI drafting; chatbot SMS replies inherit TCPA consent rules. | Material |
    | **Client-PII data handling** | Chatbot transcripts, AI-summarized CMAs / threads | Client name + financial figure + address passed through a non-business-grade AI. **"I pasted it into ChatGPT" is the #1 source of brokerage-reported AI exposure in 2026.** Two-party-consent states for any AI transcription: CA, FL, IL, MD, MA, MT, NV, NH, PA, WA (+ others). | Material |
    | **Brokerage AI Use Policy** (if supplied) | Any asset | Cross-check internal policy; call out where it is **stricter** than the regulatory floor — the brokerage wins. | Advisory unless policy says otherwise |
+   | **MLS AI-Use / Data-Licensing Policy** (new 7/28/2026) | Any asset built from MLS-sourced data (comps, closed-sales figures, tax-roll cross-references, listing history fed into an AI tool) | A named MLS (Metro MLS, Milwaukee — NAR AExperience 7/15/2026) now prohibits AI training/ML processing of its data without express written permission, treating violation as a material breach; NAR distributes an adoptable "AI Policy Template for Associations," so treat this as a spreading pattern, not a singleton. Confirm the MLS(s) in scope do not restrict the AI ingestion the asset was built with. See `knowledge-base/tools-ecosystem/mls-ai-data-governance.md`. | Flag `[VERIFY MLS AI-USE POLICY]` if unconfirmed — never assume permitted |
    | **Listing agreement / AI-use consent** | Any L2+ asset | If no AI-use consent is on file, flag retroactive disclosure. | Material |
 
 3. **Run the fair-housing language sweep.** Line-by-line pass through every text asset. Flag:
