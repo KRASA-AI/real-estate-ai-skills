@@ -5,7 +5,7 @@ tools: [claude, chatgpt]
 difficulty: intermediate
 time_saved: "~25 min/offer (single); ~75 min/multi-offer batch"
 version: 3.0
-last_eval_score: null
+last_eval_score: 9.50
 ---
 
 # Offer Review Checklist

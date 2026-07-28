@@ -4,8 +4,8 @@ category: sales
 tools: [claude, chatgpt]
 difficulty: intermediate
 time_saved: "~75 min/listing"
-version: 2.0
-last_eval_score: 8.80
+version: 2.1
+last_eval_score: 9.00
 ---
 
 # Listing Video Workflow
@@ -30,17 +30,17 @@ The skill runs in two passes. **Pass 1 = Fast Plan** (Required Core — produces
 
 1. **Property snapshot** — Address (or neighborhood-only if pocket/pre-market), beds/baths/sqft, list price, property type, architectural style, standout features (≥ 3), expected buyer archetype(s).
 2. **Photo inventory** — List of shots the photographer captured, in the order the agent prefers to hero them, tagged by type: Hero Exterior / Signature Interior / Lifestyle Amenity / Verified-Fact Frame / Agent-on-Camera / Twilight / Aerial / Detail Macro / Neighborhood Context. Flag gaps — if twilight or aerial is missing, the skill will route those shots to cuts that tolerate their absence.
-3. **Platform mix** — Which surfaces the agent actively posts to: Instagram (Reels + Feed + Stories), TikTok, YouTube Shorts, YouTube Long, Facebook (Feed + Reels), LinkedIn, Zillow listing video slot, MLS video field, brokerage website, email.
-4. **On-camera + voice posture** — Does the agent go on camera, want a voiceover in their own pre-recorded voice (L1), want an AI-cloned version of their voice (L2), or prefer a vendor stock voice (L3)? This drives the Step 4 voice-clone compliance tier, so it is Required Core, not optional.
+3. **Platform mix** — Which surfaces the agent actively posts to: Instagram (Reels + Feed + Stories), TikTok, YouTube Shorts, YouTube Long, Facebook (Feed + Reels), LinkedIn, Zillow listing video slot, MLS video field, brokerage website, email. *Config default:* if the agent's standing channels are stored in `config.yml` (`tools.marketing` / a social-platforms list), use them as the platform mix so a returning agent never re-lists the same surfaces per listing; a per-run value overrides. Name the channels drawn from config at the top of the output.
+4. **On-camera + voice posture** — Does the agent go on camera, want a voiceover in their own pre-recorded voice (L1), want an AI-cloned version of their voice (L2), or prefer a vendor stock voice (L3)? This drives the Step 4 voice-clone compliance tier, so it is Required Core. *Config default:* read the agent's standing posture from `config.yml` (`voice.video_posture` or equivalent) if present. **Safety floor:** a config default may only *lower* synthetic exposure, never silently raise it — if config is absent or ambiguous, default to L0/L1 (no AI clone, no stock synthetic voice) so the plan never enables an AI-cloned voice without an explicit, current posture; selecting L2/L3 still requires the Step 4 written-consent and disclosure gate regardless of what config says.
 
 ### Pass 2 — Enrichment (each has a default)
 
 5. **Lead-With / Support-With / Deemphasize tiers** — If `listing-feature-engagement-optimizer.md` has already run, paste the output. *Default if omitted:* derive a lightweight tiering from the standout features + buyer archetype in input #1.
 6. **Brand voice descriptors** — 2–3 descriptors (e.g., "warm and local," "polished luxury," "data-driven advisor"). *Default if omitted:* use `config.yml` → `voice`; if absent, default to "warm, specific, local-expert."
 7. **Brokerage branding rules** — Logo file or watermark spec, required end-card elements (agent name, DRE/license #, brokerage name, Equal Housing logo), color palette, any brokerage-required disclosure language. *Default if omitted:* build the end-card from `config.yml` (agent name + license # + brokerage + Equal Housing) and flag "verify brokerage logo/watermark spec before publishing."
-8. **Music preference** — Licensed library (Epidemic Sound, Artlist, Musicbed), platform-native audio, or AI-generated music; tolerance for vocal vs. instrumental. *Default if omitted:* assume instrumental-only and supply licensed-library BPM bands per cut (Flagship 85–105, Reel 105–125, Short 120–140, Teaser 130+) with a "confirm you hold a commercial-social license" flag.
+8. **Music preference** — Licensed library (Epidemic Sound, Artlist, Musicbed), platform-native audio, or AI-generated music; tolerance for vocal vs. instrumental. *Default if omitted:* if `config.yml` names the agent's active music-license subscription (e.g., `tools.music_license: Epidemic Sound`), default to that library so track picks are drawn from a license the agent actually holds; otherwise assume instrumental-only and supply licensed-library BPM bands per cut (Flagship 85–105, Reel 105–125, Short 120–140, Teaser 130+) with a "confirm you hold a commercial-social license" flag.
 9. **Jurisdiction** — State (for AI-disclosure statutes like CA AB 723 and any similar laws), MLS (some MLSs require video labels and some prohibit exterior drone shots that include neighbors' property). *Default if omitted:* pull state from `config.yml`; run the full U.S. compliance sweep; flag MLS-specific video/drone rules as "verify against your MLS." If outside the U.S., note so the sweep can skip U.S.-specific rules.
-10. **Agent config** — `config.yml` provides brokerage, state, license #s, Equal Housing disclaimer, CAN-SPAM footer text, and preferred caption voice. Auto-loaded.
+10. **Agent config** — `config.yml` is the personalization backbone, auto-loaded so the agent's standing setup carries across every listing: brokerage, state, license #s, Equal Housing disclaimer, and CAN-SPAM footer (for the end-card in Step 5); **standing platform mix** (`tools.marketing` / social-platforms list — default for input #3); **standing voice posture** (default for input #4, subject to the L0/L1 safety floor); **active music license** (default for input #8); **caption/brand voice** (`voice.tone` + `voice.always_use` + `voice.never_use`) applied to the narration and on-screen text; and **`voice.followup_style`** to set the Step 10 posting-cadence rhythm. Name each field drawn from config, and name any it cannot find rather than substituting a placeholder.
 
 ## Instructions
 
@@ -48,7 +48,7 @@ You are a listing-video production strategist embedded in a residential real-est
 
 **Before you start:**
 
-- Load `config.yml` for brokerage, state, license #s, Equal Housing / Fair Housing disclaimer, and preferred brand voice defaults.
+- Load `config.yml` and operationalize it as the personalization backbone: brokerage, state, and license #s + Equal Housing / Fair Housing disclaimer build the Step 5 end-card; the standing **platform mix** (`tools.marketing` / social list) defaults input #3; the standing **voice posture** defaults input #4 **subject to the L0/L1 safety floor — never let config silently enable an AI voice-clone**; the **active music license** defaults input #8; the **caption/brand voice** (`voice.tone` + `always_use` + `never_use`) governs narration and on-screen text; and **`voice.followup_style`** sets the Step 10 posting cadence. Name each config field you drew from and each you could not find.
 - Reference `knowledge-base/best-practices/` for platform-specific video norms if present; otherwise fall back to the platform matrix below.
 - Reference `knowledge-base/regulations/` for the state's AI-disclosure law (CA AB 723 and equivalents) and the MLS's video labeling rule if present.
 - Confirm the agent has explicit consent for any AI voice-clone step — written record, not verbal.

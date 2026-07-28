@@ -5,7 +5,7 @@ tools: [claude, chatgpt]
 difficulty: beginner
 time_saved: "~12 min/request"
 version: 1.0
-last_eval_score: null
+last_eval_score: 9.00
 ---
 
 # AI Chief of Staff Brief

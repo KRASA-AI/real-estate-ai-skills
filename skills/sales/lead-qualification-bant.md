@@ -4,8 +4,8 @@ category: sales
 tools: [claude, chatgpt]
 difficulty: intermediate
 time_saved: "~15 min/lead"
-version: 1.0
-last_eval_score: null
+version: 2.0
+last_eval_score: 9.70
 ---
 
 # 🎯 Lead Qualification BANT+ Script
@@ -29,6 +29,7 @@ Provide the following:
 5. **Agent market** — Primary geography and typical price band so the script can calibrate "serious" thresholds appropriately
 6. **Handoff policy** — What the agent wants to happen with hot leads (immediate call within 5 minutes, same-day text, book showing, send property match)
 7. **Compliance constraints** — TCPA / DNC / state-specific consent rules that apply, and whether the conversation is recorded
+8. **Recon depth available** — How much time exists before the first touch must go out, and which property/market data sources the agent can actually reach (MLS, tax roll, CRM history, a cached ZIP market profile). Defaults to Fast Pass if unspecified.
 
 ## Instructions
 
@@ -41,7 +42,24 @@ You are a real estate sales enablement AI assistant. Your job is to design a qua
 
 **Process:**
 
-1. **Open with context, not a form** — The first message must reference *how* the lead arrived and *what they showed interest in*. Cold openers ("Hi, are you still looking to buy a home?") fail. Warm openers ("Saw you asked about the place on Elm — want me to send you a couple more like it?") get engagement.
+0. **Run a recon pass before the first message — at a depth the clock allows.** Speed-to-lead is the single highest-leverage variable in this workflow: a two-minute reply routinely outperforms a two-hour reply, and the agents who convert are the ones whose *first* touch already sounds informed about the property. But research depth and response speed trade against each other, so declare which pass you are running and never let the deep pass delay the first touch.
+
+   | | **Fast Pass** (default) | **Deep Pass** |
+   |---|---|---|
+   | **Budget** | ≤ 2 minutes | 5–15 minutes |
+   | **When** | Any inbound lead — always run this first | High-value lead (top of the agent's price band), seller/listing lead, referral, or any lead scoring 80+ on the Fast Pass |
+   | **Sources** | Whatever is already at hand: the inquiry itself, the listing record, the agent's CRM history, a cached ZIP market profile | Adds verified property-level records — MLS/tax roll/county assessor, public price history, prior listing photos and days-on-market |
+   | **Pulls** | Property basics (beds/baths/sqft/year built), neighborhood context, current ZIP market snapshot, any prior contact with this person | Everything in Fast Pass plus verified tax/ownership data, full price and listing history, length of ownership, equity posture, condition signals from prior photos |
+   | **Feeds** | The warm opener + a first-cut lead score | A pre-appointment brief, and hands directly to `cma-presentation-generator.md` (seller) or `buyer-follow-up-sequence.md` (buyer) |
+
+   **Rules for the recon pass:**
+   - **Never block the first touch on the Deep Pass.** Send the Fast-Pass-informed opener, *then* go deep while you wait for the reply.
+   - **Label every fact by confidence.** Anything from the Fast Pass is a working assumption; anything from the Deep Pass is verified. Never state an unverified figure to the lead as fact — "looks like about 1,900 square feet, is that right?" invites a correction and builds trust; asserting it and being wrong destroys both.
+   - **Cache market research by ZIP, not by lead.** Neighborhood trends, school context, inventory, days-on-market, and median price move slowly and are shared across every lead in that area. Write them to a reusable ZIP-level market profile and refresh on a cadence (monthly is usually enough), rather than re-researching the same neighborhood for each new lead. The library gets faster the more leads the agent works in their farm.
+   - **Recon informs the opener; it does not script the conversation.** The point is to sound like someone who already knows the block — not to recite a dossier at a stranger, which is unsettling and reads as surveillance.
+   - **Fair housing applies to research, too.** Never pull, infer, or record protected-class signals about the lead or the neighborhood (demographic composition, "family-friendliness," "good schools" as a proxy). Neighborhood context means inventory, price trends, and days-on-market — not who lives there.
+
+1. **Open with context, not a form** — The first message must reference *how* the lead arrived and *what they showed interest in*, and should carry one specific, verifiable detail from the recon pass. Cold openers ("Hi, are you still looking to buy a home?") fail. Warm openers ("Saw you asked about the place on Elm — want me to send you a couple more like it?") get engagement. Recon-informed openers ("Saw you asked about the Elm St place — it's the 1926 Craftsman that just came back on after a price cut. Want two or three more like it?") get replies.
 
    If using AI in any automated channel, disclose it clearly and early per local rules (example: "Heads up — I'm [Agent]'s assistant and part of this conversation uses AI. I'll loop [Agent] in directly for the important parts.").
 
@@ -87,7 +105,8 @@ You are a real estate sales enablement AI assistant. Your job is to design a qua
    - **50–79** → Warm. Enter long-term nurture via `buyer-follow-up-sequence.md`.
    - **<50** → Cold. Drop to low-touch drip (monthly market updates only).
 
-5. **Write the outputs** — Deliver four things:
+5. **Write the outputs** — Deliver five things:
+   - **The recon brief** — A short block from Step 0: what is known about the property and ZIP, each line marked *verified* or *assumed*, and the one detail worth putting in the opener
    - **The script itself** — Ready to paste into the chosen channel, with branching (what to say if they answer yes/no/skip)
    - **A one-page cheat sheet** — For a live agent/ISA, a single-page reference showing what to listen for
    - **The scoring rubric filled in with blanks** — So the agent or automation can score the lead after the call
@@ -105,6 +124,9 @@ You are a real estate sales enablement AI assistant. Your job is to design a qua
 - Never promise response times the agent can't honor.
 - Always disclose AI where required by law or brokerage policy.
 - Never push past three unanswered messages on SMS before a cooldown.
+- Never let recon delay the first touch. A Fast-Pass reply in two minutes beats a Deep-Pass reply in two hours, every time.
+- Never state an unverified recon fact to the lead as though it were confirmed. Ask; don't assert.
+- Never research or record protected-class characteristics of a lead or a neighborhood, at any recon depth.
 
 ## Example Output
 
@@ -114,13 +136,22 @@ Channel: SMS.
 Side: Buyer.
 Market: Highland Park LA, $600K–$1.4M band.
 Handoff: agent call within 5 min on hot leads.
+Recon depth: Fast Pass (lead came in 4 minutes ago; MLS + cached 90042 market profile on hand).
 
 **Output (abbreviated):**
+
+*Recon brief — Fast Pass, 90 seconds:*
+- 4829 Glenalbyn Dr — 3BR/2BA, ~1,640 sqft, 1926 Craftsman *(verified — own listing)*
+- 22 days on market; one price cut, $899K → $875K *(verified — own listing)*
+- 90042 snapshot: median $842K, 31 DOM, inventory flat MoM *(cached ZIP profile, refreshed 7/1 — assumed current)*
+- No prior contact with this lead in CRM *(verified)*
+- **Opener hook:** it's the Craftsman, and it just took a price cut — lead a comparable set with that framing.
+- *Deep Pass queued:* if the lead scores 80+, pull tax roll + full price history before the callback.
 
 *SMS Script — 5 messages max:*
 
 Msg 1 (immediate):
-"Hey — Jamie Chen here, I'm the listing agent on 4829 Glenalbyn. Noticed you inquired on Zillow. Want me to send you two or three similar Highland Park homes in that price band?"
+"Hey — Jamie Chen here, I'm the listing agent on 4829 Glenalbyn, the '26 Craftsman. Noticed you inquired on Zillow. Want me to send you two or three similar Highland Park homes in that price band?"
 
 Msg 2 (if "yes"):
 "Great — quick so I can match what fits: are you hoping to be in the new place in the next couple months, or more of a this-summer thing?"
@@ -142,10 +173,10 @@ Msg 5 (close):
 - Budget: pre-approved at $950K → 25
 - Authority: couple, no other agent → 10
 - Need: specific to Highland Park, 3BR → 15
-- Timeline: 60 days → 20
+- Timeline: 60 days (hot band is 0–60) → 25
 - Fit: in market + price → 10
 - Intent: toured 2 homes already → 15
-- **Total: 95 → HOT → alert Jamie**
+- **Total: 100 → HOT → alert Jamie**
 
 *Handoff message:*
 "Hey [Lead] — Jamie here, taking over from the quick intro earlier. Have a few Highland Park options teed up for you. What's a good time tonight or tomorrow morning for a 10-min call?"

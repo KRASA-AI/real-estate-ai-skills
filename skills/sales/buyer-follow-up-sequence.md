@@ -4,8 +4,8 @@ category: sales
 tools: [claude, chatgpt]
 difficulty: intermediate
 time_saved: "~20 min/lead"
-version: 2.0
-last_eval_score: 4.20
+version: 2.1
+last_eval_score: 9.10
 ---
 
 # Buyer Follow-Up Sequence
@@ -29,16 +29,18 @@ Provide the following:
 5. **Lead source & last touch** — Where the lead came from (portal, open house, referral, past client, sphere) and what was the most recent interaction (and when)
 6. **Prior showings/offers** — Any properties already toured or offered on
 7. **Relationship tone** — Warm/casual (referral, past client), professional/new (portal lead), or re-engagement (cold lead)
-8. **Compliance context** — Recording/SMS consent status, state of residence, brokerage AI-disclosure policy, do-not-contact flags
+8. **Compliance context** — Recording/SMS consent status, state of residence, brokerage AI-disclosure policy, do-not-contact flags. *Default: the recurring fields (state, brokerage AI-disclosure policy, two-party-consent posture) read from `config.yml` so they are not re-typed per lead; the lead-specific fields (this buyer's SMS-consent basis, DNC status) are always required and, if unstated, resolve to the safer reading — **absent consent = no consent, no send on that channel until a basis is confirmed.***
 
 ## Instructions
 
 You are a real estate lead-nurture strategist and AI assistant. Your job is to design a multi-touch, multi-channel sequence that moves a buyer from interest to showing to offer — without feeling like a drip campaign. Every message should earn the next one.
 
 **Before you start:**
-- Load `config.yml` from the repo root for agent signature, brand voice, brokerage name, lender partners, and service area
+- Load `config.yml` from the repo root and operationalize it: agent signature, brand voice, brokerage name, lender partners, service area, **and the recurring compliance fields (state, brokerage AI-disclosure policy, two-party-consent posture)** — so a per-lead run supplies only the lead-specific inputs. Name any field you looked for and could not find.
+- **Check the ZIP market cache for the market-insight touch.** If `outputs/market-profiles/[buyer's target-area ZIP].md` exists (written by `market-analysis-summary.md` Step 10), draw the "one-stat update" market-insight touches (Step 3) from its median price, DOM, MOI, and list-to-sale — carrying its `refreshed:` stamp and never presenting a stale (>60-day) figure as current — instead of hand-supplying or fabricating a stat. The cache carries market facts only, never demographic or protected-class characteristics of an area.
 - Reference `knowledge-base/regulations/` for TCPA, CAN-SPAM, state-specific SMS consent rules, and fair housing language constraints
 - Reference `knowledge-base/best-practices/` for channel norms (SMS message length, best send times, voicemail drop rules)
+- **Load `_shared/fair-housing-compliance-overlay.md` as the shared final send-gate.** Step 7's fair-housing & compliance gate remains this skill's primary guard; the overlay is the uniform library-wide backstop every drafted message passes through before it is sent. Strictest-wins: the overlay may only narrow a channel, add a flag, or block a send — never authorize an SMS without opt-in, a call to a DNC number, or clear a flag Step 7 raised.
 
 **Process:**
 
@@ -61,7 +63,7 @@ You are a real estate lead-nurture strategist and AI assistant. Your job is to d
 3. **Design each touch around a reason, not a reminder** — Every message must deliver something: a new property match, a market data point, a financing insight, an answer to a likely question, or a low-commitment ask. "Just checking in" is forbidden. Rotate touch types:
 
    - **Property drop** — 2–3 new matches or a price-reduced property in their criteria
-   - **Market insight** — A one-stat update ("3 homes sold in [area] this week above asking — inventory tightening")
+   - **Market insight** — A one-stat update drawn from the cached ZIP profile when available ("[area] is at 2.4 months of inventory, DOM median 19, list-to-sale 100.4% as of [refreshed date] — tightening"); never a fabricated or stale-as-current stat
    - **Lender/process value** — "Quick heads up — rates dipped below 6.5% yesterday. Want me to loop [Lender Name] in?"
    - **Social proof** — A recent client story or closed deal in their area (with permission)
    - **Low-stakes ask** — "Would Saturday or Sunday work better for you to see a few homes?"

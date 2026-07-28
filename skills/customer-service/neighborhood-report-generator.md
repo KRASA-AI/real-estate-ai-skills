@@ -4,8 +4,8 @@ category: customer-service
 tools: [claude, chatgpt]
 difficulty: beginner
 time_saved: "~25 min/report"
-version: 3.0
-last_eval_score: null
+version: 3.1
+last_eval_score: 9.10
 ---
 
 # Neighborhood Report Generator
@@ -45,6 +45,8 @@ You are a senior buyer's-advisory specialist. Your job is to produce a neighborh
 **Before you start:**
 
 - Load `config.yml` for brokerage, license info, MLS, voice preferences, and required disclaimers.
+- **Check the ZIP market cache before pulling market data.** If `outputs/market-profiles/[ZIP].md` exists (written by `market-analysis-summary.md` Step 10), read it and populate the Housing Market Snapshot (Step 3) from its median price, median DOM, MOI + band, list-to-sale, and inventory posture — carrying the profile's `refreshed:` stamp and never presenting a stale (>60-day) figure as current. This turns the highest-latency section of the report into a cache read instead of a fresh MLS pull on every run. Re-pull from MLS only when no profile exists for the ZIP or the cached profile is stale. The cache carries **market facts only** — never demographic composition or school-quality proxies — exactly as fair housing governs the rest of this report.
+- **Load `_shared/fair-housing-compliance-overlay.md` as the shared final gate.** This report's own Step-12 compliance sweep remains its primary guard; the overlay is the uniform library-wide backstop the finished report passes through before delivery. Strictest-wins — the overlay may only add a flag or block, never clear one the Step-12 sweep raised.
 - Reference `knowledge-base/submarkets/` for any prior research on this area.
 - Identify the buyer's top 2–3 priorities and use those to weight the report's emphasis (more words on commute if commute is the priority; more words on schools if schools are the priority) — but every section is still included.
 - If the buyer profile implies school-cluster interest, pull school data from a public rating source (greatschools.org, state DOE, niche.com) with the rating-source and rating-date cited. Never paraphrase or estimate school quality.
@@ -55,7 +57,7 @@ You are a senior buyer's-advisory specialist. Your job is to produce a neighborh
 
 2. **Write the Area Overview in 2–3 sentences.** Named architectural character (craftsman blocks, mid-century stock, post-war ranch, new-build master plan), formal landmarks, verifiable history (founding date, historical designation, named-street provenance). No adjectives about residents. No inferences about "who lives here."
 
-3. **Fill in the Housing Market Snapshot from MLS data.** Median sale price, price per square foot, median DOM, inventory months in the named boundary. Price range for the most common property types. Direction (up / flat / down over the last 180 days). If the buyer's budget is provided, note whether the budget is in range, at the top, or stretched.
+3. **Fill in the Housing Market Snapshot — from the cached ZIP profile first, MLS second.** If a `market-profiles/[ZIP].md` exists and is current (<60 days), populate median sale price, median DOM, MOI/inventory posture, and list-to-sale directly from it and cite it with its `refreshed:` stamp; pull fresh from MLS only for the fields the cache lacks (e.g., price/sqft) or when the profile is stale. Median sale price, price per square foot, median DOM, inventory months in the named boundary. Price range for the most common property types. Direction (up / flat / down over the last 180 days). If the buyer's budget is provided, note whether the budget is in range, at the top, or stretched.
 
 4. **Write the Schools & Education section.** Named schools (elementary, middle, high) that serve the boundary. Rating from a named source with the rating-date. Private / charter / magnet options in the boundary. Do not add qualitative commentary about the schools beyond what the named source's rating states. If the rating source contradicts agent anecdote, state both and attribute.
 

@@ -5,7 +5,7 @@ tools: [claude, chatgpt]
 difficulty: beginner
 time_saved: "~5 min/visitor"
 version: 2.1
-last_eval_score: 8.90
+last_eval_score: 9.00
 ---
 
 # Open House Recap Email

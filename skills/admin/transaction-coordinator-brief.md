@@ -5,7 +5,7 @@ tools: [claude, chatgpt]
 difficulty: intermediate
 time_saved: "~40 min/deal (single); ~20 min/file on stale-pipeline reset"
 version: 3.0
-last_eval_score: null
+last_eval_score: 9.10
 ---
 
 # Transaction Coordinator Brief

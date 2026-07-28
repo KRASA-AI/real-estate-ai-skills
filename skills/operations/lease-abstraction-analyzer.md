@@ -5,7 +5,7 @@ tools: [claude, chatgpt]
 difficulty: intermediate
 time_saved: "~45 min/lease"
 version: 3.1
-last_eval_score: 8.80
+last_eval_score: 9.00
 ---
 
 # Lease Abstraction Analyzer

@@ -5,7 +5,7 @@ tools: [claude, chatgpt]
 difficulty: beginner
 time_saved: "~20 min/meeting"
 version: 2.1
-last_eval_score: 8.90
+last_eval_score: 9.00
 ---
 
 # 🗂️ Meeting Summarizer (Real Estate)

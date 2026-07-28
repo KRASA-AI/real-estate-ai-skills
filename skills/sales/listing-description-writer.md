@@ -4,8 +4,8 @@ category: sales
 tools: [claude, chatgpt]
 difficulty: beginner
 time_saved: "~15 min/listing"
-version: 4.0
-last_eval_score: 8.80
+version: 4.1
+last_eval_score: 9.00
 ---
 
 # Listing Description Writer
@@ -39,15 +39,19 @@ The skill runs in two passes. **Pass 1 = Fast Draft** (Required Core — produce
 6. **Target buyer** — Who is most likely to buy this (move-up, downsizer, investor, first-time buyer, luxury buyer). *Default if omitted:* write neutral, property-first copy — which is the fair-housing-safe default regardless. Used only to calibrate tone, never occupant-framing (Step 4).
 7. **MLS platform** — Character limit if applicable (many MLS systems cap at 1,000–4,000 characters). *Default if omitted:* target a 4,000-character CRMLS-style ceiling and report the count.
 8. **Agent notes** — Any "must mention" features, seller's favorite aspects, showing instructions, or unique selling points. *Default if omitted:* omit the CTA specifics (showing window / offer deadline) and flag them as `[ADD]`.
+9. **Agent config** — `config.yml` is the personalization backbone, auto-loaded so the agent never re-types their identity or brand per listing. It supplies the **attribution line** (agent name, brokerage, DRE/license #, Equal Housing Opportunity) that closes the MLS copy and every variant; the **marketing voice** (`voice.tone`, `voice.always_use`, `voice.never_use`) applied to the social/CTA copy; the **service area** (`service_area`) for neighborhood-framing conventions; and the agent's **active marketing channels** (`tools.marketing` / a social-platforms list) so Step 5 generates variants only for the surfaces the agent actually posts to. *Default if omitted:* build the attribution line from whatever config provides, name any field it cannot find as `[ADD: …]` rather than inventing it, and note the substitution.
 
 ## Instructions
 
 You are a skilled real estate listing copywriter and AI assistant. Your job is to create property descriptions that attract qualified buyers, rank well in portal search, and comply with all fair housing guidelines.
 
 **Before you start:**
-- Load `config.yml` from the repo root for company details and branding
+- Load `config.yml` from the repo root and use it as the personalization backbone, not just a tone hint:
+  - **Attribution:** build the sign-off line that closes the MLS description and every variant from config — agent name, brokerage, DRE/license #, and "Equal Housing Opportunity" — so the agent never re-types it per listing. Name any missing field as `[ADD: …]`; never invent a license number or brokerage.
+  - **Marketing voice:** apply `voice.tone` to the social/website/flyer copy, weave in `voice.always_use` phrases where natural, and block `voice.never_use` terms across all variants. Keep the MLS body itself governed first by the fair-housing and accuracy rules below — the config voice colors the marketing variants and CTA, it never overrides a compliance constraint or manufactures an unsupported claim.
+  - **Service area:** use `config.yml` → `service_area` to set neighborhood-framing conventions (how the agent names their farm area / submarket) when the address falls inside it.
+  - **Channels:** generate Step 5 platform variants for the surfaces the agent actually uses (`tools.marketing` / social-platforms list) rather than all of them by default.
 - Reference `knowledge-base/terminology/` for correct industry terms
-- Use the company's communication tone from `config.yml` → `voice`
 - **Determine the pass.** If only the two Required Core inputs are present, run **Pass 1 Fast Draft** using the Pass 2 defaults above; label the output `Pass 1 — Fast Draft`, surface the `[ADD: …]` prompts inline, and note at the top which enrichment would most improve the copy. If any Pass 2 inputs are present, use them and default the rest.
 
 **Process:**
@@ -98,6 +102,8 @@ You are a skilled real estate listing copywriter and AI assistant. Your job is t
 - Specific over generic — "2024 quartz countertops" beats "updated kitchen"
 - Correct MLS terminology and abbreviations
 - Character count noted if MLS limit was provided
+- Attribution line (agent, brokerage, DRE/license #, Equal Housing Opportunity) drawn from `config.yml`, not left as a placeholder unless the field is genuinely absent
+- Marketing variants (social/website/flyer/CTA) honor the config `always_use` / `never_use` voice rules; the MLS body honors the fair-housing and accuracy rules first
 - Ready to paste into MLS with zero edits
 - Saved to `outputs/` if the user confirms
 

@@ -5,7 +5,7 @@ tools: [claude, chatgpt]
 difficulty: beginner
 time_saved: "~10 min/email"
 version: 2.0
-last_eval_score: null
+last_eval_score: 9.40
 ---
 
 # ✉️ Email Drafter (Real Estate)

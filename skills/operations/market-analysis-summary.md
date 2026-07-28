@@ -4,8 +4,8 @@ category: operations
 tools: [claude, chatgpt]
 difficulty: beginner
 time_saved: "~15 min/use"
-version: 4.0
-last_eval_score: null
+version: 5.0
+last_eval_score: 9.00
 ---
 
 # Market Analysis Summary
@@ -16,7 +16,7 @@ Produce a concise, data-first market snapshot — weekly, monthly, or on-demand 
 
 ## When to Use
 
-**Quick Start (minimum viable run):** Three things ship a usable market snapshot — geographic scope, reporting period, and whatever metrics you can paste from MLS right now (even just closed count, median price, and DOM). That is the Pass 1 Required Core. The skill produces the snapshot header, key-metrics table, MOI diagnosis, headline stories, and a draft "What This Means" closer in one pass, using sensible defaults for everything you did not specify (audience → past-client newsletter; comparison period → prior month + year-ago; delivery format → email) and flagging each default so you can override. Add the Pass 2 enrichment inputs — specific audience, exact comparison periods, delivery format, narrative angle, macro context — when you want the copy tuned to a named reader. A buyer's or seller's agent can pull the three core numbers in a consultation and hand the client a snapshot in the meeting, then refine for the newsletter later.
+**Quick Start (minimum viable run):** Three things ship a usable market snapshot — geographic scope, reporting period, and whatever metrics you can paste from MLS right now (even just closed count, median price, and DOM). That is the Pass 1 Required Core. The skill produces the snapshot header, key-metrics table, MOI diagnosis, headline stories, and a draft "What This Means" closer in one pass, using config-resolved defaults for everything you did not specify (audience → the agent's primary audience from `config.yml`, falling back to the past-client newsletter; delivery format → the agent's primary channel from `config.yml`, falling back to email; comparison period → prior month + year-ago) and flagging each default so you can override. Every run also writes or refreshes the **cached ZIP market profile** (Step 10) that `lead-qualification-bant.md`, `seller-intent-scorer.md`, and three other skills read instead of re-researching the same neighborhood — research the geography once, reuse it everywhere. Add the Pass 2 enrichment inputs — specific audience, exact comparison periods, delivery format, narrative angle, macro context — when you want the copy tuned to a named reader. A buyer's or seller's agent can pull the three core numbers in a consultation and hand the client a snapshot in the meeting, then refine for the newsletter later.
 
 Use this skill to produce a weekly or monthly market update for past clients and sphere, to brief a buyer or seller during a qualification or listing appointment, to create a social post or newsletter segment answering "how's the market?", to provide context in a pricing conversation before running a full CMA, or when a specific client asks for an update on their neighborhood or price range. If you need a full property-specific pricing presentation, use `cma-presentation-generator.md` instead. If you need a buyer-facing area overview with schools, amenities, transit, and lifestyle, use `neighborhood-report-generator.md` instead. Pairs with `cma-presentation-generator.md` (this skill's MOI band feeds directly into the CMA's submarket diagnosis), `seller-intent-scorer.md` (a softening market raises the bar on seller-intent confidence), `buyer-follow-up-sequence.md` (the monthly-update touch in the sequence is best produced by this skill), `listing-aeo-optimizer.md` (the market-report Q&A block on a market-report page is best populated by this skill's headline stories), and `neighborhood-report-generator.md` (the market-pulse paragraph in the neighborhood report is this skill's output).
 
@@ -40,11 +40,19 @@ The input is split into a **Required Core** (Pass 1 — the snapshot ships on th
 
 4. **Segment filters** — Price band (e.g., $600K–$1.2M), property type (SFR, condo, townhome, multi-family, lot/land), bed/bath minimum, square-footage minimum, year-built band. *Default if omitted: all property types in the named geography, no price band; the snapshot states the unfiltered scope explicitly.*
 5. **Comparison period** — What to compare against (prior month, same month last year, trailing 6-month average, pre-rate-hike baseline; two comparisons allowed). *Default if omitted: prior month (MoM) + same month last year (YoY).*
-6. **Audience** — Past clients / newsletter list, a specific buyer, a specific seller, social followers, a broker, a referral partner, an institutional or relocation client. *Default if omitted: past-client / sphere newsletter; the closer is written for that reader and flagged for re-aim.*
-7. **Delivery format** — Email copy, newsletter section, social caption, 1-pager PDF content, talking-point brief for a live conversation, or a market-report-page Q&A block (handoff to `listing-aeo-optimizer.md`). *Default if omitted: email copy (150–250 words).*
+6. **Audience** — Past clients / newsletter list, a specific buyer, a specific seller, social followers, a broker, a referral partner, an institutional or relocation client. *Default if omitted: the agent's **primary audience from `config.yml`** — `audience.primary` if set, otherwise inferred from the agent's business model (`goals.lead_sources` / `service_area`): a farm-heavy agent defaults to the farm/sphere newsletter reader, a referral-heavy agent to the past-client reader, a listing-heavy agent to the prospective-seller reader. If config is silent, fall back to past-client / sphere newsletter. The applied default is named in the Pass-1 defaults line and the closer is flagged for re-aim.*
+7. **Delivery format** — Email copy, newsletter section, social caption, 1-pager PDF content, talking-point brief for a live conversation, or a market-report-page Q&A block (handoff to `listing-aeo-optimizer.md`). *Default if omitted: the agent's primary distribution channel from `config.yml → tools.marketing` / the social-platforms list (if the agent runs a newsletter, default to the newsletter section; if they post to one social surface, default to that caption format); if config is silent, email copy (150–250 words).*
 8. **Narrative angle** — A specific storyline to emphasize ("inventory finally easing," "luxury segment slowing," "first-time-buyer window," "rate-window opportunity"). *Default if omitted: let the data pick the angle — the largest material move drives the lead headline.*
 9. **Macro context** — Current 30-year mortgage rate, recent Fed move, local job-market shock or boom, seasonal context (peak spring, holiday slowdown). Applied as flavoring, not core data. *Default if omitted: pull seasonality and rate-band context from `knowledge-base/industry-overview.md`; mark the macro line "general context — confirm current rate."*
-10. **Agent config** — `config.yml` provides agent name, brokerage, state, license #, signature format, brand-voice defaults, MLS attribution conventions, and service area. The skill auto-loads these; a Pass 1 run uses the config service area as the default geographic scope if the agent gives only "my market."
+10. **Agent config** — `config.yml` is the personalization backbone for this skill, not a signature block. Auto-loaded, and it supplies:
+    - **`service_area`** → the default geographic scope when the agent says only "my market," *and* the ZIP set this skill maintains cached profiles for (see Step 10).
+    - **`audience.primary` / `goals.lead_sources`** → the default audience (input #6) and therefore which "What This Means" closer gets written.
+    - **`tools.marketing` / social-platforms list** → the default delivery format (input #7) and which channel variants are worth producing.
+    - **`mls.name` + `mls.attribution`** → the **exact MLS attribution and data-source line** that closes every artifact ("Source: [MLS], closed [period]"). MLS attribution wording is contractual and diverges by MLS — this is not boilerplate to be improvised. If `mls.attribution` is absent, emit the source line with `[VERIFY MLS ATTRIBUTION WORDING]` rather than inventing one.
+    - **`brokerage` + `state` + `license`** → the C5 brokerage-disclosure block (agent name, brokerage, DRE/RE license #, Equal Housing Opportunity) appended verbatim to every client-facing format that the state's advertising rule requires it on.
+    - **`voice.tone` / `always_use` / `never_use`** → the register of the narrative and the closer. `never_use` terms are blocked outright.
+
+    **Config never overrides a compliance constraint.** The fair-housing sweep, the sample-size discipline, the no-prediction rule, and the C1–C7 sweep all run *before* voice is applied and win every conflict. A missing config field is flagged `[ADD TO CONFIG]` — never invented (no fabricated license #, brokerage, or MLS attribution string).
 
 ## Instructions
 
@@ -54,7 +62,8 @@ The two failure modes you are working against: (a) the **stat-dump** — a table
 
 **Before you start:**
 
-- Load `config.yml` for agent signature, brand voice, brokerage name, and service area.
+- Load `config.yml` **first** and resolve the run's defaults from it before touching a number: geographic scope (`service_area`), audience (`audience.primary` / `goals.lead_sources`), delivery format (`tools.marketing`), the MLS attribution string (`mls.attribution`), the brokerage-disclosure block (`brokerage` + `state` + `license`), and the narrative voice (`voice.*`). Name every applied default in the Pass-1 defaults line.
+- **Check the ZIP cache before re-deriving anything.** If a `market-profile` already exists for this geography (see Step 10), read it: reuse the slow-moving context (inventory posture, DOM band, median price, MOI band) and re-pull only what the reporting period actually changed. Re-deriving a neighborhood the agent already researched last month is the single largest source of wasted work across this library.
 - Reference `knowledge-base/terminology/` for correct real-estate metric definitions (DOM vs. CDOM, list-to-sale ratio, absorption rate, months of inventory).
 - Reference `knowledge-base/regulations/` for fair-housing constraints on market commentary.
 - Reference `knowledge-base/industry-overview.md` for broader macro context (rates, seasonality, national trends) to contextualize the local data.
@@ -133,7 +142,19 @@ The two failure modes you are working against: (a) the **stat-dump** — a table
    - **C6 — Segment-narrowness.** If a segment has < 5 active listings, flag that the comparison-period read is unreliable.
    - **C7 — No cherry-pick.** A flattering single-comp callout in the narrative is allowed only if accompanied by the median or distribution context.
 
-9. **Produce handoff artifacts.** Ship the following, labeled and in order:
+9. **Write the closer and the attribution in the agent's own conventions.** The "What This Means" closer is aimed at the config-resolved audience (input #6) and written in the config voice (`voice.tone`, `always_use`, `never_use`) — but only after the C1–C7 sweep has cleared the underlying claims. Close every client-facing artifact with two config-supplied blocks, verbatim, not improvised: the **MLS attribution / data-source line** (`mls.attribution` — exact wording; `[VERIFY MLS ATTRIBUTION WORDING]` if config is silent) and the **brokerage-disclosure block** (agent name · brokerage · DRE/RE license # · Equal Housing Opportunity) on every format the state's advertising rule covers. These two lines are what make a market snapshot publishable rather than merely correct, and they are the two things an agent should never be re-typing per report.
+
+10. **Emit or refresh the cached ZIP market profile.** Every run of this skill writes a reusable, geography-keyed profile — this is the skill's second product, and the one that compounds. Write to `outputs/market-profiles/[ZIP or area-key].md`:
+
+    - **Key:** ZIP (or the named farm-area key from `config.yml → service_area`).
+    - **Contents:** MOI + band, median price, median DOM, list-to-sale ratio, inventory posture (active / new / pending), price-cut %, the two- or three-line narrative of where the market is heading, and the sample size behind each figure.
+    - **Stamp:** `refreshed: [date]` and `source: [MLS + period]`. Every consumer reads this stamp.
+    - **Cadence:** refresh monthly, or on any material move (± 10%), rate shock, or MOI band change. A profile older than 60 days is stale and must be labeled as such to its consumers, not silently reused.
+    - **Consumers:** `lead-qualification-bant.md` (the Fast-Pass recon pulls the ZIP snapshot from here instead of researching the neighborhood per lead), `seller-intent-scorer.md` (the Market-Fit component reads the MOI band and DOM from here), `cma-presentation-generator.md` (submarket diagnosis), `neighborhood-report-generator.md` (market-pulse paragraph), `social-content-calendar-30day.md` (the market-authority content pillar).
+
+    The rule the cache exists to enforce: **research the geography once, reuse it across every lead, listing, and report in that area.** For a farm-area agent — this repo's core user — the same ZIP is otherwise re-derived from scratch by five different skills. The profile carries market facts only: inventory, price, DOM, MOI, supply. It **never** records demographic composition, "family-friendliness," school-quality proxies, or any protected-class characteristic of an area — the fair-housing rule applies to cached research exactly as it applies to published copy.
+
+11. **Produce handoff artifacts.** Ship the following, labeled and in order:
 
    - Pass label (Fast Snapshot or Tuned Report) — and, for Pass 1, the one-line list of defaults applied so the agent knows what Pass 2 will refine.
    - Market Snapshot Header (geography, segment filters, period, "as of" date, sample size).
@@ -142,8 +163,9 @@ The two failure modes you are working against: (a) the **stat-dump** — a table
    - Headline Stories (2–3, each with stat / translation / implication / confidence label).
    - "What This Means" (audience-specific).
    - Caveat Block (what the data does not capture).
-   - Data Sources & Period.
-   - Delivery-Formatted Output (the final text in the format the user requested).
+   - Data Sources & Period (the config MLS attribution line, exact wording).
+   - Delivery-Formatted Output (the final text in the format the user requested, carrying the config brokerage-disclosure block).
+   - **Cached ZIP Market Profile** (written or refreshed per Step 10, with its `refreshed` stamp).
    - Compliance Notes (the seven-check sweep, pass/fail per item).
    - Hand-off (route to: `cma-presentation-generator.md` if a subject property is now in play; `seller-intent-scorer.md` if the data triggers a re-score; `buyer-follow-up-sequence.md` if this is the monthly-update touch; `listing-aeo-optimizer.md` if this is meant to live on a market-report page).
 
@@ -152,7 +174,8 @@ The two failure modes you are working against: (a) the **stat-dump** — a table
 - Stats are precise (one decimal place where meaningful) and sourced.
 - Every stat has an accompanying interpretation — never a table without narrative.
 - No jargon without definition — if you use "absorption rate" or "MOI," briefly define on first use.
-- Tone matches brand voice from `config.yml`.
+- Tone matches `voice.tone` from `config.yml`; `always_use` phrasing is woven in where natural, `never_use` terms are blocked.
+- Every client-facing artifact carries the config MLS attribution line and the config brokerage-disclosure block (name · brokerage · license # · Equal Housing Opportunity) where the state's advertising rule requires it. Missing config fields appear as `[ADD TO CONFIG]`, never as invented values.
 - Format matches the delivery format requested.
 - Length appropriate to format — don't pad.
 - Ready to paste into the chosen channel with minimal editing.
@@ -160,6 +183,9 @@ The two failure modes you are working against: (a) the **stat-dump** — a table
 
 **Critical rules:**
 
+- **Config personalizes; compliance governs.** The config voice colors the narrative and the closer, and config supplies the attribution and disclosure blocks — but the fair-housing sweep, sample-size discipline, no-prediction rule, and the C1–C7 sweep run first and win every conflict. Config never manufactures a stat, a license #, a brokerage, or an MLS attribution string; a missing field is `[ADD TO CONFIG]`.
+- **A cached ZIP profile is a convenience, not a source of truth about the current period.** Reuse it for slow-moving context; re-pull anything the reporting period actually changed. Never present a figure from a stale profile (> 60 days) as current — carry its `refreshed` stamp forward so every downstream consumer can see how old it is.
+- **The ZIP cache carries market facts only** — inventory, price, DOM, MOI, supply. Never demographic composition, school-quality proxies, "family-friendliness," or any protected-class characteristic of an area. Fair housing applies to cached research exactly as it applies to published copy.
 - Never fabricate or estimate stats the agent didn't provide — if data is missing, flag it.
 - Never predict future rate moves or price movements as fact; frame as scenarios with the conditions named.
 - Never make demographic or school-quality claims about neighborhoods.
@@ -222,7 +248,24 @@ Scope: Highland Park (Los Angeles) 90042 SFR, 3BR+, $700K–$1.2M. Period: March
 - Rate environment: 30-year fixed has been range-bound at 6.5–6.9% for the period — most of the YoY price move is supply-driven, not rate-driven.
 - Seasonality: March is the front edge of the spring season; April–June will tell us whether this is a true shift or a one-month read.
 
-**Data Sources & Period:** CRMLS closed sales, Highland Park 90042, SFR 3BR+, $700K–$1.2M, March 1–31, 2026 vs. March 1–31, 2025 and February 1–28, 2026. Source pulled April 5, 2026.
+**Data Sources & Period:** CRMLS closed sales, Highland Park 90042, SFR 3BR+, $700K–$1.2M, March 1–31, 2026 vs. March 1–31, 2025 and February 1–28, 2026. Source pulled April 5, 2026. *(Attribution wording per `config.yml → mls.attribution`.)*
+
+---
+
+**Cached ZIP Market Profile — written to `outputs/market-profiles/90042.md`:**
+
+> **90042 — Highland Park** · `refreshed: 2026-04-05` · `source: CRMLS closed sales, Mar 1–31, 2026` · `n=14 closed`
+>
+> - **MOI:** 2.9 → **band: < 3, strong seller's — but softening at every leverage stat** (MoM +0.5, YoY +1.5)
+> - **Median price:** $885K (−1.1% MoM, −2.7% YoY) · **$/sqft:** $712
+> - **Median DOM:** 28 (+6 MoM, +12 YoY)
+> - **List-to-sale:** 98.1% (−1.3 pts MoM, −4.3 pts YoY) · **Price cuts:** 21% of actives
+> - **Inventory posture:** 19 new listings (+46% MoM); supply roughly doubled YoY; buyers have options again
+> - **Read:** band hasn't flipped, but direction is buyer-favorable on all four leverage stats. Treat any 90042 pricing conversation as "seller's market with a longer runway," not "seller's market, price ahead."
+> - **Refresh trigger:** monthly, or on any MOI band change / ±10% move / rate shock.
+> - **Consumed by:** `lead-qualification-bant.md` (Fast-Pass recon snapshot), `seller-intent-scorer.md` (Market-Fit component), `cma-presentation-generator.md`, `neighborhood-report-generator.md`, `social-content-calendar-30day.md`.
+
+Every subsequent 90042 lead, listing, CMA, and seller re-score this month reads this block instead of re-deriving the neighborhood. That is the compounding return: the fifth lead in the farm costs a fraction of the first.
 
 ---
 
@@ -262,6 +305,8 @@ Subject: Highland Park market update — March in numbers
 - `seller-intent-scorer.md` — for any past-client seller who replies "I'm thinking about it," re-score their intent against the softening data.
 - `cma-presentation-generator.md` — replies that progress to "what's my home worth?" route here; the MOI band (< 3) and direction (softening) carry forward into the CMA's submarket diagnosis.
 - `buyer-follow-up-sequence.md` — this email is the monthly-update touch in the sequence; replace the standard "what's new in the neighborhood" placeholder with this content.
+- `lead-qualification-bant.md` — the 90042 profile above is now the Fast-Pass recon snapshot for every new Highland Park lead this month; no per-lead neighborhood research required.
+- `seller-intent-scorer.md` — the MOI band (2.9, < 3, softening) and median DOM (28) feed the Market-Fit component for every 90042 contact in the seller pipeline; the `refreshed` stamp is the component's confidence date.
 
 ## Sample-Size Caveat Brief (when n < 5 closed in the segment / period)
 

@@ -5,7 +5,7 @@ tools: [claude, chatgpt]
 difficulty: intermediate
 time_saved: "~45 min/listing"
 version: 3.0
-last_eval_score: 8.80
+last_eval_score: 9.10
 ---
 
 # Listing AEO Optimizer

@@ -4,8 +4,8 @@ category: sales
 tools: [claude, chatgpt]
 difficulty: intermediate
 time_saved: "~5 hrs/month"
-version: 3.0
-last_eval_score: 8.80
+version: 4.0
+last_eval_score: 9.20
 ---
 
 # 30-Day Social Content Calendar
@@ -45,10 +45,12 @@ Generate a full 30-day cross-platform social media calendar for a real estate ag
 
 ### A. Required Core (5 items — sufficient for a minimum viable run)
 
-1. **Agent profile** — Name, brokerage, primary farm area / neighborhoods, years in business, ideal client profile.
-2. **Brand voice** — 2–3 descriptors (e.g., "warm and local," "polished luxury," "data-driven," "energetic and millennial").
+**Config-default the recurring inputs.** Four of these five change rarely and should be read from `config.yml` on every run rather than re-typed each month: #1 agent profile (`agent`/`brokerage`/`service_area`/`audience.primary`), #2 brand voice (`voice.tone` / `always_use` / `never_use`), #4 active platforms (`tools.marketing` / operating channels), and the compliance jurisdiction (`state`) that Section B #12 needs. When config supplies them, **the whole monthly run collapses to two live inputs: the target month (#3) and the current active listings (Section B #6).** Flag any config field you looked for and did not find rather than assuming a default; never let config invent a platform the agent does not actually run.
+
+1. **Agent profile** — Name, brokerage, primary farm area / neighborhoods, years in business, ideal client profile. *Default: from `config.yml` (`agent`, `brokerage`, `service_area`, `audience.primary`).*
+2. **Brand voice** — 2–3 descriptors (e.g., "warm and local," "polished luxury," "data-driven," "energetic and millennial"). *Default: from `config.yml` `voice.tone`; every caption is written in `voice.always_use` / `never_use`.*
 3. **Target month** — The calendar month the plan covers (affects seasonality, holidays, school calendar).
-4. **Active platforms** — Which channels the agent posts to (the eight-platform aspect-duration matrix below honors only platforms actually used).
+4. **Active platforms** — Which channels the agent posts to (the eight-platform aspect-duration matrix below honors only platforms actually used). *Default: from `config.yml` `tools.marketing` / operating channels; config may only narrow the platform set, never widen it.*
 5. **Time budget** — Hours/week the agent commits. Three bands:
    - **Light** (< 2 hr/wk): max 3 posts/wk on primary platform; 1 Reel/Short max; no carousels.
    - **Steady** (2–5 hr/wk): 5–7 posts/wk on primary; 2 Reels/Shorts; weekly newsletter; default band.
@@ -64,7 +66,7 @@ Generate a full 30-day cross-platform social media calendar for a real estate ag
 8. **Local events** — Known events in the farm area (farmers markets, school calendar, community events, seasonal openings).
    *Default if omitted:* Local Authority slots default to neighborhood-walk observations and seasonal evergreen content.
 9. **Current market context** — One-sentence summary, ideally sourced from `market-analysis-summary.md`'s confidence-labeled output (e.g., "March 2026 90042 SFR 3BR+: MOI 2.4 (sub-3 sub-band, High confidence); list-to-sale 100.4%; DOM median 19; rates 6.1%").
-   *Default if omitted:* Market-stat captions are suppressed; the calendar runs without "how's the market" content rather than fabricating numbers.
+   *Default if omitted:* **read the cached ZIP market profile** at `outputs/market-profiles/[farm-area ZIP].md` (written by `market-analysis-summary.md` Step 10) and drive the market-authority pillar from its MOI + band, median price, median DOM, and list-to-sale — carrying its `refreshed:` stamp so a caption never presents a stale (>60-day) figure as current. Only if no profile exists for the farm ZIP are market-stat captions suppressed (never fabricated). This makes the market-authority content pillar a config-and-cache read rather than a per-month re-paste.
 10. **Content pillars** — If the agent has defined pillars, use them.
     *Default if omitted:* The five-pillar mix (Local Authority / Active Inventory / Process Education / Behind-the-Scenes / Social Proof).
 11. **Brand-Voice + Voice-Clone Asset Inventory** (from `agent-discoverability-audit.md` Step 6) — Which slots default to L0 / L1 / L2 / L3.
@@ -80,7 +82,9 @@ You are a real estate content strategist and AI assistant. Your job is to produc
 
 **Before you start:**
 
-- Load `config.yml` for brand voice, compliance rules, branding, and the CAN-SPAM footer.
+- Load `config.yml` and **operationalize it as the run backbone** — resolve agent profile, brand voice (`voice.tone` / `always_use` / `never_use`), active platforms, jurisdiction, brokerage rules, and the CAN-SPAM footer from it so the agent only supplies the month and the active listings. Name any field you looked for and could not find.
+- **Check the ZIP cache before writing any market caption.** If `outputs/market-profiles/[farm-area ZIP].md` exists, read it and drive the market-authority pillar from its figures + `refreshed:` stamp instead of asking the agent to paste market stats (Section B #9). Do not re-derive a neighborhood `market-analysis-summary.md` already researched this month.
+- **Load `_shared/fair-housing-compliance-overlay.md` as the shared final gate.** The embedded 7-check sweep (Step 11) remains the calendar's own guard; the overlay is the uniform library-wide backstop every caption, hook, on-screen text, and hashtag passes through before publish. Strictest-wins: the overlay may only tighten or block a slot, never relax the embedded checks.
 - Reference `knowledge-base/best-practices/` for platform-specific cadence and format norms.
 - Reference `knowledge-base/regulations/` for Fair Housing trigger-language patterns (the calendar's 7-check sweep loads these as a search list, not as a vibe).
 - Pull `knowledge-base/industry-overview.md` for seasonal context.
@@ -161,7 +165,7 @@ You are a real estate content strategist and AI assistant. Your job is to produc
 
 10. **Provide a "repurposing map."** For at least 5 of the 30 posts, show how the same core idea can be re-expressed across 2–3 platforms with different formats — but honor cannibalization deconfliction (Step 4). The map shows the same Reel as Tuesday IG → Friday LinkedIn text post → Sunday email newsletter, NOT same Reel posted to IG + TikTok same day.
 
-11. **Compliance Sweep — 7 checks** (run before delivery):
+11. **Compliance Sweep — 7 checks** (run before delivery; then pass the full calendar through `_shared/fair-housing-compliance-overlay.md` as the uniform final gate — strictest-wins, and it may only add a flag/block, never clear one this sweep raised):
    - **C1 Fair Housing:** Every caption, hook, on-screen text, and hashtag scanned against the loaded `knowledge-base/regulations/` Fair-Housing-trigger list. "Family-friendly," "safe neighborhood," "perfect for families," "exclusive community framed by demographics," "good schools" without sourcing flagged. Rewrite recommended.
    - **C2 NAR Article 12 truthfulness:** Any "best," "top," "#1," "leading" claim cites a named ranking (REAL Trends, Hour LA, brokerage internal). Unsubstantiated superlatives flagged.
    - **C3 AI synthetic-media disclosure:** L2 voice-clone slots carry first-frame or caption disclosure ("Voiceover by [Agent Name]'s authorized AI voice"). L3 stock-synthetic slots carry "Voiced by AI." CA AB 723 + state equivalents apply if content is used in property advertising. AI-generated images in Active Inventory slots flagged for explicit disclosure per CA AB 723.

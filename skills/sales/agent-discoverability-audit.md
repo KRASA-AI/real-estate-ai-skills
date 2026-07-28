@@ -5,7 +5,7 @@ tools: [claude, chatgpt]
 difficulty: intermediate
 time_saved: "~3 hr/agent"
 version: 2.1
-last_eval_score: 8.90
+last_eval_score: 9.10
 ---
 
 # Agent Discoverability Audit
