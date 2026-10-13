@@ -5,7 +5,7 @@ tools: [claude, chatgpt]
 difficulty: advanced
 time_saved: "~25 min/audit"
 version: 2.4
-last_eval_score: null
+last_eval_score: 9.20
 ---
 
 # AI Marketing Compliance Audit

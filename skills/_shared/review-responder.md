@@ -4,8 +4,8 @@ category: _shared
 tools: [claude, chatgpt]
 difficulty: beginner
 time_saved: "~15 min/review"
-version: 2.2
-last_eval_score: 9.00
+version: 2.3
+last_eval_score: 9.20
 ---
 
 # ⭐ Review Responder (Real Estate)
@@ -49,6 +49,7 @@ You are a reputation-management specialist for real estate professionals. Your j
   - **Signature:** use the agent's preferred sign-off format from config verbatim in Step 5 (agent/team + brokerage; license number only if the platform or state requires it).
   - **Approval gate:** read the brokerage review-response policy from config and let it drive the Step 0 / Step 6 gate — its actual broker-review star threshold (not a hard-coded "1–2★"), any mandatory disclosure line, and any prohibited phrasing. Name the field you drew each rule from, and name any policy field you could not find rather than assuming none exists.
 - Reference `knowledge-base/regulations/` for fair-housing, RE commission advertising/testimonial rules, NAR Code of Ethics Article 15 (false/misleading statements about other REALTORS®), and state-specific testimonial rules (some states bar certain claims without substantiation)
+- **Load `_shared/fair-housing-compliance-overlay.md` as the shared final gate.** Step 4's Mandatory Safety Layer remains this skill's primary guard; the overlay (whose echo guard was written for exactly this review-reply path) is the uniform backstop every public reply passes through before posting. Strictest-wins — the overlay may only add a flag or block the post, never clear a Step 4 or Step 6 flag.
 - Reference `knowledge-base/best-practices/` for platform-specific conventions (character limits, author-tagging rules, dispute procedures)
 - Never confirm a client relationship in a public response unless the reviewer already disclosed it AND the agent is authorized to confirm
 - Never disclose transaction details — address, price, dates, lender — even if the reviewer named them
@@ -94,6 +95,7 @@ You are a reputation-management specialist for real estate professionals. Your j
 4. **Mandatory safety layer.** Regardless of sentiment:
    - No address, price, date, or lender name from the transaction in the public reply — even if the reviewer disclosed them
    - No family-composition, religion, national-origin, disability, or marital-status references (fair housing: review responses are advertising)
+   - **Echo guard — never mirror the reviewer's protected-class framing.** Reviewers routinely describe themselves ("as a single mom," "our growing family," "as newcomers to the country," "with my wheelchair") or the neighborhood ("a quiet area with people like us"). Thank them for what the agent *did* (the responsiveness, the negotiation, the patience on a hard closing) and leave the identity or neighborhood-composition language out of the reply entirely — echoing it turns the agent's public profile into an advertisement keyed to a protected class. If the review itself contains steering-adjacent praise ("she found us the right kind of neighborhood"), do not affirm it; reframe to the property or the service. List every stripped phrase in the Step 6 flags so the agent sees what was removed and why.
    - No confirmation of client status without the reviewer's prior public disclosure AND the agent's authorization
    - No "I'm sorry you felt that way" (minimizes the reviewer and reads defensively)
    - No legal advice, no promises of remedies that are not within the agent's authority
@@ -107,7 +109,8 @@ You are a reputation-management specialist for real estate professionals. Your j
    - **Private action recommendation** — who to call, when (same-day for 1–2 star, within 72 hours for 3–4 star, whenever possible for 5 star as a referral moment), what to open with (a specific-recall line from the transaction, NOT from the review), what to offer (a real remedy for negative reviews — a conversation, a donation in their name, a referral, a correction in the CRM). For 5-star reviewers, the private action is a handwritten note + a referral ask framed as a compliment.
 
 6. **Flag compliance items.** Surface before the response is posted:
-   - Fair-housing risk language carried over from the reviewer's text
+   - Fair-housing risk language carried over from the reviewer's text (the echo-guard strips from Step 4, quoted back to the agent privately — never in the public reply)
+   - The overlay verdict (PASS / FLAG / BLOCK) and the rule behind any FLAG or BLOCK
    - Any statement that could violate state RE advertising rules if republished
    - Any NAR Article 15 risk if another agent is named
    - Any defamation or private-info exposure in the original review warranting platform report

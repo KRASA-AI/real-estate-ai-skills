@@ -4,8 +4,8 @@ category: operations
 tools: [claude, chatgpt]
 difficulty: beginner
 time_saved: "~15 min/use"
-version: 5.0
-last_eval_score: 9.00
+version: 5.1
+last_eval_score: 9.20
 ---
 
 # Market Analysis Summary
@@ -49,6 +49,7 @@ The input is split into a **Required Core** (Pass 1 — the snapshot ships on th
     - **`audience.primary` / `goals.lead_sources`** → the default audience (input #6) and therefore which "What This Means" closer gets written.
     - **`tools.marketing` / social-platforms list** → the default delivery format (input #7) and which channel variants are worth producing.
     - **`mls.name` + `mls.attribution`** → the **exact MLS attribution and data-source line** that closes every artifact ("Source: [MLS], closed [period]"). MLS attribution wording is contractual and diverges by MLS — this is not boilerplate to be improvised. If `mls.attribution` is absent, emit the source line with `[VERIFY MLS ATTRIBUTION WORDING]` rather than inventing one.
+    - **`mls.ai_use_policy`** (optional, recommended) → the agent's recorded answer to "does my MLS permit feeding this data into an AI tool?" — `permitted` / `restricted` / `unknown`, plus a note on which export it covers (comp/back-office export, IDX feed, VOW package) because some MLSs are moving to per-package usage rules. Read once, applied every run: `permitted` for the package in use → no flag; `restricted` → stop and tell the agent to analyze outside the AI tool or obtain written permission; `unknown` or absent → flag `[VERIFY MLS AI-USE POLICY]` on the source line and carry on (never block the workflow, never assume permission). Config may record a permission; it never invents one.
     - **`brokerage` + `state` + `license`** → the C5 brokerage-disclosure block (agent name, brokerage, DRE/RE license #, Equal Housing Opportunity) appended verbatim to every client-facing format that the state's advertising rule requires it on.
     - **`voice.tone` / `always_use` / `never_use`** → the register of the narrative and the closer. `never_use` terms are blocked outright.
 
@@ -67,7 +68,8 @@ The two failure modes you are working against: (a) the **stat-dump** — a table
 - Reference `knowledge-base/terminology/` for correct real-estate metric definitions (DOM vs. CDOM, list-to-sale ratio, absorption rate, months of inventory).
 - Reference `knowledge-base/regulations/` for fair-housing constraints on market commentary.
 - Reference `knowledge-base/industry-overview.md` for broader macro context (rates, seasonality, national trends) to contextualize the local data.
-- Reference `knowledge-base/tools-ecosystem/mls-ai-data-governance.md` before pasting raw MLS export data into an AI tool for this analysis — a growing number of MLSs now restrict AI processing of their data under the data-license agreement; when unconfirmed, flag `[VERIFY MLS AI-USE POLICY]` alongside the attribution line rather than assuming ingestion is permitted.
+- Reference `knowledge-base/tools-ecosystem/mls-ai-data-governance.md` before pasting raw MLS export data into an AI tool for this analysis — a growing number of MLSs now restrict AI processing of their data under the data-license agreement, and some are moving to rules that differ by data package. Resolve the run's status from `config.yml → mls.ai_use_policy` for the export actually being used (see input #10); when unconfirmed, flag `[VERIFY MLS AI-USE POLICY]` alongside the attribution line rather than assuming ingestion is permitted.
+- **Load `_shared/fair-housing-compliance-overlay.md` as the shared final gate** for every client-facing format. The C1–C7 sweep (Step 8) remains this skill's primary guard; the overlay is the uniform backstop applied after it. Strictest-wins — the overlay may only add a flag or block a format, never clear a C1–C7 flag.
 - Confirm sample size. If the segment / period combination produced fewer than 10 closed sales, mark every metric in the output with a small-sample flag and tighten language accordingly. Below 5 closed sales, this skill produces a "Sample-Size Caveat Brief" rather than a market summary.
 
 **Process (run in order — earlier steps set constraints for later ones):**
@@ -152,6 +154,8 @@ The two failure modes you are working against: (a) the **stat-dump** — a table
     - **Stamp:** `refreshed: [date]` and `source: [MLS + period]`. Every consumer reads this stamp.
     - **Cadence:** refresh monthly, or on any material move (± 10%), rate shock, or MOI band change. A profile older than 60 days is stale and must be labeled as such to its consumers, not silently reused.
     - **Consumers:** `lead-qualification-bant.md` (the Fast-Pass recon pulls the ZIP snapshot from here instead of researching the neighborhood per lead), `seller-intent-scorer.md` (the Market-Fit component reads the MOI band and DOM from here), `cma-presentation-generator.md` (submarket diagnosis), `neighborhood-report-generator.md` (market-pulse paragraph), `social-content-calendar-30day.md` (the market-authority content pillar).
+
+    - **Data provenance (added v5.1):** every profile records `source_package:` (which MLS export the numbers came from — e.g., back-office comp export, IDX feed) and `mls_ai_use:` (`permitted` / `restricted` / `unknown`, as resolved this run). Consumers inherit it: a skill reading a profile marked `unknown` carries the `[VERIFY MLS AI-USE POLICY]` flag forward instead of silently laundering the data into a new artifact, and a profile marked `restricted` is not read by any AI-run skill until the status changes. One resolution at the producer, honored by all five consumers.
 
     The rule the cache exists to enforce: **research the geography once, reuse it across every lead, listing, and report in that area.** For a farm-area agent — this repo's core user — the same ZIP is otherwise re-derived from scratch by five different skills. The profile carries market facts only: inventory, price, DOM, MOI, supply. It **never** records demographic composition, "family-friendliness," school-quality proxies, or any protected-class characteristic of an area — the fair-housing rule applies to cached research exactly as it applies to published copy.
 

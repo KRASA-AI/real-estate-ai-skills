@@ -4,8 +4,8 @@ category: sales
 tools: [claude, chatgpt]
 difficulty: beginner
 time_saved: "~15 min/listing"
-version: 4.1
-last_eval_score: 9.00
+version: 4.2
+last_eval_score: 9.20
 ---
 
 # Listing Description Writer
@@ -52,6 +52,7 @@ You are a skilled real estate listing copywriter and AI assistant. Your job is t
   - **Service area:** use `config.yml` → `service_area` to set neighborhood-framing conventions (how the agent names their farm area / submarket) when the address falls inside it.
   - **Channels:** generate Step 5 platform variants for the surfaces the agent actually uses (`tools.marketing` / social-platforms list) rather than all of them by default.
 - Reference `knowledge-base/terminology/` for correct industry terms
+- **Load `_shared/fair-housing-compliance-overlay.md` as the shared final gate.** Step 4's fair-housing check and Step 4b's accuracy/privacy check remain this skill's primary guards; the overlay is the uniform library-wide backstop the finished copy passes through before it is pasted into the MLS or posted. Strictest-wins — the overlay may only add a flag or block a variant, never clear a flag Step 4 or 4b raised.
 - **Determine the pass.** If only the two Required Core inputs are present, run **Pass 1 Fast Draft** using the Pass 2 defaults above; label the output `Pass 1 — Fast Draft`, surface the `[ADD: …]` prompts inline, and note at the top which enrichment would most improve the copy. If any Pass 2 inputs are present, use them and default the rest.
 
 **Process:**
@@ -82,6 +83,13 @@ You are a skilled real estate listing copywriter and AI assistant. Your job is t
    - Avoid coded language that implies demographic preferences
    - Do not reference religious landmarks, houses of worship, or ethnic-cultural venues as selling points
 
+4b. **Accuracy, privacy & media check (public remarks are permanent and syndicated).** Run this after Step 4, before any variant is written:
+   - **Trace every factual claim to an input.** Each stated feature, measurement, upgrade year, view, or amenity must come from the agent's input or config. Anything the draft inferred (a "chef's kitchen" from "updated kitchen," a "view" nobody mentioned, a renovation year) is either cut or marked `[VERIFY]` — AI drafting overstates features, and the listing agent owns the misrepresentation.
+   - **Public vs. private remarks split.** Route anything that is for cooperating agents only — showing instructions, lockbox/gate/alarm codes, occupancy or vacancy status, tenant-occupied notes, seller's reason for selling or motivation, offer-review timing strategy — into a separate **Agent/Private Remarks** block. None of it appears in public remarks, the headline, or any consumer-facing variant (security and seller-privacy risk, and many MLSs fine it).
+   - **No client personal data in the prompt or the copy.** Seller names, financial details, payoff figures, and tenant identities are not needed to write a description; if they were pasted in, do not carry them into any output.
+   - **Altered photos.** If any photo is virtually staged, digitally enhanced beyond color/exposure correction, or AI-generated, add the MLS-required label to the media notes and a plain-language mention in the public remarks where the MLS requires it; flag `[VERIFY MLS LABEL]` when the exact wording is unknown. Never describe a virtually staged furnishing as included.
+   - **Square footage source.** State the sqft source when known (assessor, appraisal, builder plans, measured) or add `[VERIFY SQFT SOURCE]` — square-footage disputes are among the most common post-closing claims.
+
 5. **Generate platform variants** (if requested):
    - **MLS** — Full description within character limit, keyword-optimized, professional tone
    - **Social media** — Shorter, more casual, emoji-friendly, with a hook and CTA
@@ -94,7 +102,8 @@ You are a skilled real estate listing copywriter and AI assistant. Your job is t
 - **Headline** — 10 words or fewer for portal display
 - **Key Feature Bullets** — 5–7 scannable highlights for flyers or quick reference
 - **Social Media Caption** (optional) — If requested, a ready-to-post version
-- **Fair Housing Compliance Notes** — Brief confirmation that the description was reviewed for compliance
+- **Agent/Private Remarks** — Showing instructions and any cooperating-agent-only details routed out of public copy by Step 4b (`[ADD]` placeholders if not supplied)
+- **Fair Housing Compliance Notes** — Brief confirmation that the description was reviewed for compliance, plus the Step 4b results (claims marked `[VERIFY]`, items moved to private remarks, photo-label status) and the overlay verdict (PASS / FLAG / BLOCK)
 
 **Output requirements:**
 - Vivid but accurate — never exaggerate or misrepresent features
@@ -169,6 +178,10 @@ Listed by Sarah Chen | BHHS California Properties | DRE #02134567
 
 #highlandpark #midcenturymodern #cliffmay #losangelesrealestate #postandbeam #mcmhomes #LArealestate #BHHS #equalhousing
 
+### Agent/Private Remarks (cooperating agents only — not in public copy)
+
+Showings by appointment via [ADD: showing service]; 24-hr notice, seller-occupied. Lockbox details provided on confirmed appointment only — never in remarks. Offers reviewed [ADD: offer-review date]. Sqft per assessor; buyer to verify.
+
 ### Fair Housing Compliance Notes
 
 The description was reviewed against HUD and CA DRE fair-housing language patterns. Specific decisions worth flagging for the agent:
@@ -179,5 +192,7 @@ The description was reviewed against HUD and CA DRE fair-housing language patter
 - **School attendance area** is named (Aldama Elementary) with the "buyer to verify" disclaimer required by CA DRE guidance — no school-quality claim is made.
 - **No religious, ethnic, or cultural venue** is referenced as a selling point. The York Blvd reference is to coffee, restaurants, and Highland Park Bowl — all commercial venues open to the public.
 - **No "perfect for"** or occupant-framing language is used. Features describe the property, not the resident.
+
+Step 4b: all features traced to agent input; no inferred amenities. Showing/occupancy details moved to Agent/Private Remarks. No photos flagged as virtually staged. Overlay verdict: **PASS**.
 
 Character counts: MLS 2,847 / 4,000 (CRMLS cap). Headline 56 / 80 (portal display safe). Caption 122 words (within Instagram first-comment fold).
