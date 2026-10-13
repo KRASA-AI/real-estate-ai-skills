@@ -1,4 +1,4 @@
-# MLS AI-Data-Governance — Reference (as of 2026-07-28)
+# MLS AI-Data-Governance — Reference (as of 2026-10-13)
 
 > **Why this exists.** Between 6/12/2026 and 7/15/2026 the "who controls how AI touches MLS data" question — tracked as commentary-only on the watchlist for four monitor cycles (6/29, 7/6, 7/13, 7/20) — produced a second, structurally different PRODUCT/ENTRANT, satisfying the ACT trigger this file's absence had been waiting on. This file is the canonical reference any skill in the repo should cite when its workflow ingests MLS-sourced data into an AI tool — primarily `ai-marketing-compliance-audit.md`, `lead-qualification-bant.md`, `market-analysis-summary.md`, `cma-presentation-generator.md`, `listing-aeo-optimizer.md`, and `agent-discoverability-audit.md`.
 >
@@ -6,7 +6,7 @@
 
 ---
 
-## Two governance patterns, confirmed distinct
+## Three governance patterns, confirmed distinct (third added 2026-10-13)
 
 ### Pattern 1 — Infrastructure / access-control layer
 
@@ -23,6 +23,16 @@ Metro MLS — the largest MLS in Wisconsin, serving 9,000+ members across six lo
 > "Metro MLS data may not be used for AI training or machine learning in any way without Metro MLS's express written permission. This includes AI-related derivative datasets and AI processing of MLS data for predictive or generative capabilities."
 
 This is a **contract-layer** solution: a flat prohibition (not a graduated-access system) enforced as a material breach of the existing data-license agreement, with real remedies (contract + other legal remedies). Metro MLS's policy explicitly defines "AI" broadly (LLMs, ML models, neural networks, generative AI, predictive models, automated decisioning systems, recommendation engines, computer vision) and "training" broadly (fine-tuning, testing, validating, improving outputs, creating embeddings/vector databases, creating synthetic or derivative datasets — i.e., **not limited to foundation-model pretraining**; ordinary RAG-style ingestion into a chat tool plausibly falls inside this definition). NAR now publishes a downloadable **"AI Policy Template for Associations"** (nar.realtor/ae/ai-policy-template-for-associations) that other MLSs can adapt — meaning Metro MLS is very unlikely to remain a singleton.
+
+### Pattern 3 — Per-data-package usage rules (emerging, proposal stage)
+
+**Canonical example: California Regional MLS (CRMLS)** — CEO Art Carter, reported by HousingWire, 10/1/2026, with parallel positions from NTREIS (Chris Carrillo) and REsides (Colette Stevenson).
+
+Neither an infrastructure meter (Pattern 1) nor a flat prohibition (Pattern 2): the direction CRMLS describes is to **attach a defined set of permitted uses to every individual data package an MLS distributes**, with metadata carried alongside the data identifying who owns it and which uses are fair. The stated stance is explicitly *against* blanket AI bans — the MLS instead controls the entry points through which AI reaches its data. NTREIS adds an economic condition (any AI monetization of listing data should flow back to the contributing brokers); REsides adds a per-request review step (evaluate each AI use case on intent and product velocity rather than relying on one-size license language). Shared across all three: MLS leaders broadly do not want listing data used to train large language models.
+
+**Status:** proposals and stated direction, not adopted contract terms — no clause text or fee schedule was published. It counts as a distinct *pattern* (it changes the unit of permission from "the subscriber" to "the data package"), but not yet as a named adopted policy.
+
+**What changes for an agent under Pattern 3:** the answer to "may I paste this into my AI tool?" can differ **by export, not just by MLS** — a comp-set CSV, an IDX feed, and a VOW/back-office package may each carry different permitted uses. The same reporting notes members are already routing around their MLS because no compliant AI channel exists; that is the exposure this file's `[VERIFY MLS AI-USE POLICY]` flag is meant to catch.
 
 **Why two-source convergence matters:** the pattern is no longer "one MLS's idiosyncratic policy" — it's a governance *category* with two structurally different mechanisms (infrastructure-metering vs. contract-prohibition), and a NAR-distributed template that lowers the cost of a third, fourth, and fifth MLS adopting the contract-prohibition pattern specifically.
 
@@ -45,7 +55,8 @@ This is the first monitor finding in this concept-class with a **direct complian
 
 1. Treat "does your MLS have a written AI-use policy?" as a config-worthy fact (`config.yml → mls.ai_use_policy` — not yet a standard field; flag as a config-schema gap until adopted repo-wide).
 2. Default to **unknown = assume restricted** for anything that resembles training, fine-tuning, embedding creation, or "AI processing... for predictive or generative capabilities" — ordinary one-off "summarize this comp set" prompting is a lower-risk read (closer to a human analyst reading the data) than bulk ingestion, but the Metro MLS definition is broad enough that a cautious skill should flag rather than assume.
-3. Never let this uncertainty block the workflow — flag it as `[VERIFY MLS AI-USE POLICY]` the same way the repo already flags `[VERIFY MLS ATTRIBUTION WORDING]`, and let the human agent resolve it with their MLS.
+3. Where an MLS attaches usage terms to the specific export (Pattern 3), check the terms of **that** package — a permission that covers an IDX display feed does not automatically cover a back-office comp export, and vice versa. Record which package the data came from alongside the `[VERIFY MLS AI-USE POLICY]` flag.
+4. Never let this uncertainty block the workflow — flag it as `[VERIFY MLS AI-USE POLICY]` the same way the repo already flags `[VERIFY MLS ATTRIBUTION WORDING]`, and let the human agent resolve it with their MLS.
 
 ---
 
@@ -53,7 +64,7 @@ This is the first monitor finding in this concept-class with a **direct complian
 
 - **Not a claim that MLS data can never touch an AI tool.** Most MLSs have no AI-specific policy yet, and even Metro MLS's policy is aimed at training/derivative-dataset creation, not at an agent using a chat assistant to read and summarize a comp set the way they'd use a spreadsheet. The distinction between "AI reads data to help a human do a one-off task" and "AI trains/embeds on data to build a durable derivative asset" is exactly the ambiguity this file flags rather than resolves.
 - **Not legal advice.** Whether a given skill's workflow trips a given MLS's policy is a data-license question for the agent's MLS and, where material, their broker or counsel — the repo surfaces the question, not the answer.
-- **Not a complete map.** Only two named entrants exist as of this writing (NorthstarMLS/REcore infrastructure-layer, Metro MLS contract-layer). WAV Group Consulting remains the highest-cadence commentary voice tracking this space (four pieces since 1/23/2026) but commentary is not counted toward the ACT trigger — only named PRODUCT/POLICY entrants are.
+- **Not a complete map.** Two named adopted entrants exist as of this writing (NorthstarMLS/REcore infrastructure-layer, Metro MLS contract-layer), plus one proposal-stage pattern from the largest U.S. MLS (CRMLS per-package rules). WAV Group Consulting remains the highest-cadence commentary voice tracking this space (four pieces since 1/23/2026) but commentary is not counted toward the ACT trigger — only named PRODUCT/POLICY entrants are.
 - **Not stable.** Re-check whenever a third MLS adopts either pattern, whenever NAR's AI Policy Template sees adoption data reported, or whenever a portal (Zillow, Realtor.com, Homes.com) discloses how it reconciles portal-resident AI assistants (which read MLS-sourced feeds) against MLS-level AI-use restrictions.
 
 ---
@@ -63,6 +74,7 @@ This is the first monitor finding in this concept-class with a **direct complian
 - NorthstarMLS × REcore Solutions, "Project NexusRE" — PR Newswire, 6/12/2026.
 - Metro MLS AI-use policy — Danielle Wong Moores, "Make It a Policy to Protect MLS Data From AI Misuse," NAR AExperience, 7/15/2026 (Chris Lambrou, CEO, Metro MLS, interviewed).
 - WAV Group Consulting — "Stop Giving AI Another Broker's Listing" (7/3/2026), "AI Is Already Inside Your MLS. The Question Is Who Controls It." (5/18/2026), "Why the MLS Must Remain the Heart of Data Integrity in Real Estate" (3/26/2026), "MLS Data, AI, and the Line Between Innovation and Risk" (1/23/2026).
+- CRMLS / NTREIS / REsides positions — Brooklee Han, "MLS data is more valuable than ever. The industry has to decide how to protect it," HousingWire, 10/1/2026. Context: HousingWire AI Summit MLS-governance panel coverage, 8/12/2026.
 - NAR "AI Policy Template for Associations" — nar.realtor/ae/ai-policy-template-for-associations.
 
 **Cross-references:**
